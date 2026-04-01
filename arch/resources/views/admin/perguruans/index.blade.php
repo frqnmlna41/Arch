@@ -10,7 +10,7 @@
         </a>
     </div>
 
-    @include('partials._alerts')
+    @include('components._alerts')
 
     <div class="card">
         <div class="card-header">

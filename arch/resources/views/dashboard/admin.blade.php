@@ -144,7 +144,7 @@
                             </div>
                         @endforeach
                     </div>
-                    <a href="{{ route('admin.perguruans.index') }}"
+                    <a href="{{ route('admin.perguruan.index') }}"
                         class="mt-4 block text-blue-600 hover:text-blue-700 font-medium">
                         Lihat Semua <i class="fas fa-arrow-right ml-1"></i>
                     </a>
@@ -209,6 +209,7 @@
                                 </span>
                             </div>
                         </div>
+                    </div>
                 @endforeach
             </div>
         </div>

@@ -17,7 +17,7 @@
                         </div>
 
                         <div class="card-body p-5">
-                            @include('partials._alerts')
+                            @include('components._alerts')
 
                             <form action="{{ route('auth.register-perguruan') }}" method="POST"
                                 enctype="multipart/form-data">

@@ -123,9 +123,28 @@ Route::prefix('admin')
         Route::apiResource('matches', MatchController::class)
             ->middleware('permission:manage matches');
 
-    });
+        // Disciplines
+        Route::apiResource('disciplines', DisciplineController::class);
+
+        // Age Categories
+        Route::apiResource('age-categories', AgeCategoryController::class);
+
+        // Arenas
+        Route::apiResource('arenas', ArenaController::class);
+
+        // Winners
+        Route::get('winners', [WinnerController::class, 'index'])->name('winners.index');
+        Route::get('winners/{winner}', [WinnerController::class, 'show'])->name('winners.show');
+        Route::post('events/{event}/winners/calculate', [WinnerController::class, 'calculate'])->name('winners.calculate');
+        Route::delete('winners/{winner}', [WinnerController::class, 'destroy'])->name('winners.destroy');
+
+        // Certificates
+        Route::get('certificates', [CertificateController::class, 'index'])->name('certificates.index');
+        Route::post('winners/{winner}/certificate', [CertificateController::class, 'generate'])->name('certificates.generate');
+        Route::post('events/{event}/certificates/generate-all', [CertificateController::class, 'generateAll'])->name('certificates.generate-all');
+
         // Perguruan Management
-Route::resource('perguruan', PerguruanController::class)->parameters(['perguruans' => 'user']);
+        Route::resource('perguruan', PerguruanController::class)->parameters(['perguruans' => 'user']);
         Route::patch('perguruans/{user}/verify', [PerguruanController::class, 'verify'])->name('perguruans.verify');
         Route::patch('perguruans/{user}/reject', [PerguruanController::class, 'reject'])->name('perguruans.reject');
     });

@@ -33,7 +33,7 @@
         </div>
     </div>
 
-    @include('partials._alerts')
+    @include('components._alerts')
 
     <div class="row g-4">
         <div class="col-lg-8">

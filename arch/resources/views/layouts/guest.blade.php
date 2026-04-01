@@ -42,7 +42,7 @@
         <!-- Card -->
         <div class="bg-white rounded-2xl shadow-xl p-6">
 
-            @include('partials._alerts')
+            @include('components._alerts')
 
             @yield('content')
 
