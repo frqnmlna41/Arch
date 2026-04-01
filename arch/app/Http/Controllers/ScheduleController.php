@@ -25,10 +25,10 @@ use Illuminate\Http\Request;
  */
 class ScheduleController extends Controller
 {
-    public function __construct()
-    {
-        $this->middleware(['auth', 'permission:view schedule']);
-    }
+    // public function __construct()
+    // {
+    //     $this->middleware(['auth', 'permission:view schedule']);
+    // }
 
     // ──────────────────────────────────────────────────────────────
     // INDEX – Jadwal dengan filter

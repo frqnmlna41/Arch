@@ -28,12 +28,12 @@ use Illuminate\Support\Str;
  */
 class CertificateController extends Controller
 {
-    public function __construct()
-    {
-        $this->middleware('auth');
-        $this->middleware('permission:generate certificates')->only(['generate', 'generateAll']);
-        $this->middleware('permission:view certificates')->only(['index', 'show', 'download']);
-    }
+    // public function __construct()
+    // {
+    //     $this->middleware('auth');
+    //     $this->middleware('permission:generate certificates')->only(['generate', 'generateAll']);
+    //     $this->middleware('permission:view certificates')->only(['index', 'show', 'download']);
+    // }
 
     // ──────────────────────────────────────────────────────────────
     // INDEX – Daftar semua sertifikat

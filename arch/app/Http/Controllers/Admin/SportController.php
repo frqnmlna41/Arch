@@ -19,11 +19,11 @@ use Illuminate\Http\Request;
  */
 class SportController extends Controller
 {
-    public function __construct()
-    {
-        $this->middleware(['auth', 'role:admin']);
-        $this->middleware('permission:manage sports');
-    }
+    // public function __construct()
+    // {
+    //     $this->middleware(['auth', 'role:admin']);
+    //     $this->middleware('permission:manage sports');
+    // }
 
     // ──────────────────────────────────────────────────────────────
     // INDEX

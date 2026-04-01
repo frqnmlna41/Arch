@@ -6,8 +6,11 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Event\StoreEventRequest;
 use App\Http\Requests\Event\UpdateEventRequest;
 use App\Models\Event;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Controllers\HasMiddleware;
+use Illuminate\Routing\Controllers\Middleware;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -19,12 +22,17 @@ use Illuminate\Support\Facades\DB;
  * Middleware: role:admin, permission:manage events
  */
 class EventController extends Controller
+
 {
-    public function __construct()
-    {
-        $this->middleware(['auth', 'role:admin']);
-        $this->middleware('permission:manage events');
-    }
+    use AuthorizesRequests;
+    // public static function middleware(): array
+    // {
+    //     return [
+    //         new Middleware('auth'),
+    //         new Middleware('role:admin'),
+    //         new Middleware('permission:manage events'),
+    //     ];
+    // }
 
     // ──────────────────────────────────────────────────────────────
     // INDEX

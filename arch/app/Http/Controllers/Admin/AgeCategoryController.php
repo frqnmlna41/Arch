@@ -9,6 +9,7 @@ use App\Models\AgeCategory;
 use App\Models\Sport;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 /**
  * AgeCategoryController
@@ -19,12 +20,12 @@ use Illuminate\Http\Request;
  */
 class AgeCategoryController extends Controller
 {
-    public function __construct()
-    {
-        $this->middleware(['auth', 'role:admin']);
-        $this->middleware('permission:manage age categories');
-    }
-
+    // public function __construct()
+    // {
+    //     $this->middleware(['auth', 'role:admin']);
+    //     $this->middleware('permission:manage age categories');
+    // }
+use AuthorizesRequests;
     // ──────────────────────────────────────────────────────────────
     // INDEX
     // ──────────────────────────────────────────────────────────────

@@ -24,12 +24,12 @@ use Illuminate\Support\Facades\DB;
  */
 class WinnerController extends Controller
 {
-    public function __construct()
-    {
-        $this->middleware('auth');
-        $this->middleware('role:admin')->only(['calculate', 'store', 'destroy']);
-        $this->middleware('permission:view results')->only(['index', 'show']);
-    }
+    // public function __construct()
+    // {
+    //     $this->middleware('auth');
+    //     $this->middleware('role:admin')->only(['calculate', 'store', 'destroy']);
+    //     $this->middleware('permission:view results')->only(['index', 'show']);
+    // }
 
     // ──────────────────────────────────────────────────────────────
     // INDEX – Daftar pemenang

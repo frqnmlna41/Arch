@@ -21,11 +21,11 @@ use Illuminate\Http\Request;
  */
 class DisciplineController extends Controller
 {
-    public function __construct()
-    {
-        $this->middleware(['auth', 'role:admin']);
-        $this->middleware('permission:manage disciplines');
-    }
+    // public function __construct()
+    // {
+    //     $this->middleware(['auth', 'role:admin']);
+    //     $this->middleware('permission:manage disciplines');
+    // }
 
     // ──────────────────────────────────────────────────────────────
     // INDEX – Daftar discipline (bisa difilter per sport)

@@ -18,11 +18,11 @@ use Illuminate\Http\Request;
  */
 class ArenaController extends Controller
 {
-    public function __construct()
-    {
-        $this->middleware(['auth', 'role:admin']);
-        $this->middleware('permission:manage arenas');
-    }
+    // public function __construct()
+    // {
+    //     $this->middleware(['auth', 'role:admin']);
+    //     $this->middleware('permission:manage arenas');
+    // }
 
     public function index(Request $request): JsonResponse
     {

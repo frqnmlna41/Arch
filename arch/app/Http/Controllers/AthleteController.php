@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
-
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use App\Http\Requests\Athlete\StoreAthleteRequest;
 use App\Http\Requests\Athlete\UpdateAthleteRequest;
 use App\Models\Athlete;
@@ -25,15 +25,15 @@ use Illuminate\Support\Facades\Storage;
  */
 class AthleteController extends Controller
 {
-    public function __construct()
-    {
-        $this->middleware('auth');
-        $this->middleware('permission:view athletes')->only(['index', 'show']);
-        $this->middleware('permission:create athletes')->only(['store']);
-        $this->middleware('permission:update athletes')->only(['update']);
-        $this->middleware('permission:manage athletes')->only(['destroy']);
-    }
-
+    // public function __construct()
+    // {
+    //     $this->middleware('auth');
+    //     $this->middleware('permission:view athletes')->only(['index', 'show']);
+    //     $this->middleware('permission:create athletes')->only(['store']);
+    //     $this->middleware('permission:update athletes')->only(['update']);
+    //     $this->middleware('permission:manage athletes')->only(['destroy']);
+    // }
+use AuthorizesRequests;
     // ──────────────────────────────────────────────────────────────
     // INDEX
     // ──────────────────────────────────────────────────────────────

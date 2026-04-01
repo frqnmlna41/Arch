@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Http\Controllers\Admin;
-
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Match\StoreMatchRequest;
 use App\Http\Requests\Match\UpdateMatchRequest;
@@ -24,12 +24,13 @@ use Illuminate\Support\Facades\DB;
  */
 class MatchController extends Controller
 {
-    public function __construct()
-    {
-        $this->middleware('auth');
-        $this->middleware('role:admin')->only(['store', 'update', 'destroy', 'generate', 'assignArena', 'assignSchedule']);
-        $this->middleware('permission:view schedule')->only(['index', 'show']);
-    }
+    // public function __construct()
+    // {
+    //     $this->middleware('auth');
+    //     $this->middleware('role:admin')->only(['store', 'update', 'destroy', 'generate', 'assignArena', 'assignSchedule']);
+    //     $this->middleware('permission:view schedule')->only(['index', 'show']);
+    // }
+    use AuthorizesRequests;
 
     // ──────────────────────────────────────────────────────────────
     // INDEX – List semua pertandingan
@@ -178,7 +179,7 @@ class MatchController extends Controller
     public function generate(Request $request, Event $event): JsonResponse
     {
         try {
-            $this->middleware('permission:manage matches');
+            // $this->middleware('permission:manage matches');
 
             $request->validate([
                 'discipline_id'   => ['required', 'exists:disciplines,id'],

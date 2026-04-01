@@ -12,12 +12,12 @@ use Illuminate\Support\Str;
 
 class PerguruanController extends Controller
 {
-    public function __construct()
-    {
-        $this->middleware('auth:sanctum');
-        $this->middleware('role:admin');
-        $this->middleware('permission:manage perguruans');
-    }
+    // public function __construct()
+    // {
+    //     $this->middleware('auth:sanctum');
+    //     $this->middleware('role:admin');
+    //     $this->middleware('permission:manage perguruans');
+    // }
 
     /**
      * Display list of pending perguruan registrations
