@@ -1,0 +1,86 @@
+# SISTEM PENDAFTARAN BARU & RBAC PERGURUAN/ATLET
+
+## CURRENT FLOW (TO CHANGE)
+- Siapa saja bisa register user → auto role='coach' → langsung login
+- Coach daftar athlete → pending → admin verify
+- Athlete.coach_id → perguruan tidak formal
+
+## NEW FLOW
+```
+1. PENDAFTARAN PERGURUAN/OFFICIAL
+   ├─ Perguruan isi form /auth/register-perguruan
+   │  (name, email, password, perguruan_name, address, phone)
+   ├─ User dibuat: role='perguruan', status='pending'
+   ├─ Email admin: \"New perguruan pending\"
+   └─ Response: \"Pending admin approval\"
+
+2. ADMIN VERIVIKASI
+   ├─ Admin GET /admin/pending-perguruan
+   ├─ PATCH /admin/perguruan/{id}/approve
+   │  Update status='active', approved_by=admin.id
+   └─ Email perguruan: login credentials
+
+3. LOGIN & MANAGE ATLET
+   ├─ Perguruan login
+   ├─ POST /athletes → only own perguruan
+   │  athlete.perguruan_id = user.id
+   │  athlete.club = perguruan.name
+   └─ EventParticipant: only athletes own perguruan
+
+4. ATLET EVENT
+   ├─ POST /events/{e}/participants
+   ├─ status='pending'
+   └─ Admin verify → 'verified'
+```
+
+## FILES TO CHANGE/ADD
+```
+**Models:**
+- User.php: +status, +perguruan relation, scopes(pending/active)
+- Athlete.php: coach_id → perguruan_id (FK users.perguruan)
+
+**Controllers:**
+- AuthController.php: registerPerguruan() → pending user
+- Admin/PerguruanController.php (NEW): index, verify, reject
+- AthleteController.php: authorize('own-athletes', perguruan)
+- EventParticipantController: +role:perguruan authorize
+
+**Requests:**
+- RegisterPerguruanRequest.php (NEW)
+
+**Routes (web.php):**
+POST auth/register-perguruan
+GET|PATCH admin/perguruan (pending/verify) → middleware role:admin
+athletes → role:perguruan
+
+**Database:**
+Migration: users.status ENUM('pending','active')
+Migration: athletes.perguruan_id
+OR NEW: perguruans table id|name|user_id|address
+
+**Seeder:**
+RolePermissionSeeder: +role 'perguruan' perms(manage own athletes, register participant)
++perms: 'verify-perguruan'
+
+**Views:**
+auth/register-perguruan.blade.php (NEW form)
+admin/pending-perguruan.blade.php
+
+**Policies:**
+PerguruanPolicy, AthletePolicy@viewOwn()
+```
+
+## DEPENDENCIES
+- composer require laravel/sanctum (already)
+- php artisan make:seeder UpdateRoles -- untuk migrate existing coaches to perguruan
+
+## TEST STEPS
+1. Migrate + seed
+2. Register perguruan → check pending
+3. Admin approve
+4. Perguruan daftar athlete → check perguruan_id
+5. Daftar event → pending verify
+6. Unauthorized athlete → 403
+
+END OF FLOW
+

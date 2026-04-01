@@ -71,15 +71,18 @@ class UserSeeder extends Seeder
                     'name'              => $userData['name'],
                     'password'          => Hash::make($userData['password']),
                     'phone'             => $userData['phone'],
+                    'status'            => 'active',
                     'email_verified_at' => now(),
-                    'is_active'         => true,
                 ]
             );
 
             // Assign role (syncRoles agar tidak duplikat)
             $user->syncRoles([$role]);
 
-            $this->command->info("  ✅ User [{$user->email}] created → role: {$role}");
+            // Force status active for all seeded users
+            $user->update(['status' => 'active']);
+
+            $this->command->info("  ✅ User [{$user->email}] created → role: {$role}, status: active");
         }
     }
 }

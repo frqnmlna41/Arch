@@ -73,6 +73,11 @@ class RolePermissionSeeder extends Seeder
         // ── User & Role Management ────────────────────────
         'manage users',         // admin
         'manage roles',         // admin
+
+        // ── Perguruan Management ──────────────────────────
+        'manage perguruans',    // admin
+        'verify perguruan',     // admin
+        'register perguruan',   // perguruan only
     ];
 
     /**
@@ -80,6 +85,18 @@ class RolePermissionSeeder extends Seeder
      */
     private array $rolePermissions = [
         'coach' => [
+            'create athletes',
+            'view athletes',
+            'view events',
+            'view schedule',
+            'register participant',
+            'view participants',
+            'view scores',
+            'view results',
+            'view certificate',
+        ],
+        'perguruan' => [  // NEW ROLE
+            'register perguruan',
             'create athletes',
             'view athletes',
             'view events',
@@ -133,7 +150,7 @@ class RolePermissionSeeder extends Seeder
         $adminRole->syncPermissions(Permission::all());
         $this->command->info('  ✅ Role [admin] created → all permissions assigned.');
 
-        // ── Buat Role: coach, athlete, judge ─────────────
+        // ── Buat Role: coach, athlete, judge, perguruan ──
         foreach ($this->rolePermissions as $roleName => $permissions) {
             $role = Role::firstOrCreate([
                 'name'       => $roleName,

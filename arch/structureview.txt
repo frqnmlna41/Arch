@@ -1,0 +1,105 @@
+# Arch Project - Scalable Views Structure
+# Laravel Blade Views compatible with all existing API routes
+# Created: structure mirrors controllers/routes for easy maintenance
+
+## 📁 OVERALL STRUCTURE
+```
+resources/views/
+├── layouts/                 # Base templates
+│   ├── app.blade.php       # Guest/public layout (login/register)
+│   ├── admin.blade.php     # Admin dashboard layout w/ sidebar
+│   └── guest.blade.php     # Simple public pages
+├── partials/               # Reusable components
+│   ├── _head.blade.php
+│   ├── _header.blade.php
+│   ├── _sidebar.blade.php  # Dynamic nav by role/module
+│   ├── _navbar.blade.php
+│   ├── _table.blade.php    # Generic DataTable
+│   ├── _form.blade.php     # Form wrappers
+│   ├── _modal.blade.php
+│   ├── _pagination.blade.php
+│   ├── _alerts.blade.php
+│   └── _badge.blade.php
+├── auth/                   # Authentication
+│   ├── login.blade.php
+│   ├── register.blade.php
+│   └── profile.blade.php
+├── dashboard/              # Role-based dashboards
+│   ├── admin.blade.php
+│   ├── coach.blade.php
+│   └── athlete.blade.php
+└── admin/                  # Admin modules (role:admin)
+    ├── dashboard.blade.php
+    ├── sports/
+    │   ├── index.blade.php
+    │   ├── create.blade.php
+    │   ├── edit.blade.php
+    │   └── show.blade.php
+    ├── disciplines/
+    ├── age-categories/
+    ├── events/
+    │   └── participants/   # Nested: /events/{event}/participants
+    ├── arenas/
+    ├── matches/
+    │   └── scores/         # /matches/{match}/scores
+    ├── athletes/
+    ├── winners/
+    ├── certificates/
+    └── schedules/          # Multi-role view
+```
+
+## 🛠️ Terminal Commands to Create Structure
+
+```bash
+# Navigate to project
+cd "c:/Users/Maulana/Documents/GitHub/Arch/arch"
+
+# Create directories (one command)
+mkdir -p resources/views/{layouts,partials,auth,dashboard,admin/{sports,disciplines,age-categories,events/{participants},arenas,matches/{scores},athletes,winners,certificates,schedules}}
+
+# Create layout files
+touch resources/views/layouts/{app,admin,guest}.blade.php
+touch resources/views/partials/_{head,header,sidebar,navbar,table,form,modal,pagination,alerts,badge}.blade.php
+
+# Auth
+touch resources/views/auth/{login,register,profile}.blade.php
+
+# Dashboards
+touch resources/views/dashboard/{admin,coach,athlete}.blade.php
+touch resources/views/admin/dashboard.blade.php
+
+# Admin modules - main CRUD files (repeat pattern for each)
+touch resources/views/admin/{sports,disciplines,age-categories,arenas,athletes,winners,certificates}/index.blade.php
+touch resources/views/admin/{sports,disciplines,age-categories,arenas,athletes,winners,certificates}/{create,edit,show}.blade.php
+
+# Nested
+touch resources/views/admin/events/index.blade.php
+touch resources/views/admin/events/{create,edit,show}.blade.php
+touch resources/views/admin/events/participants/{index,create}.blade.php
+
+touch resources/views/admin/matches/index.blade.php
+touch resources/views/admin/matches/{create,edit,show}.blade.php
+touch resources/views/admin/matches/scores/{index,create}.blade.php
+
+touch resources/views/admin/schedules/index.blade.php
+
+echo "✅ Views structure created! Next: populate content or npm run dev"
+```
+
+## 🎯 Key Features per Function
+- **layouts/admin.blade.php**: Sidebar w/ links to all modules, role-based menu
+- **partials/_table.blade.php**: Reusable table w/ search/paginate/sort (Tailwind)
+- **admin/sports/index.blade.php**: Fetches /api/admin/sports via Alpine/fetch, displays table
+- **Scalability**: Add new module? Copy folder pattern + controller route
+- **Compatibility**: Matches all routes/web.php endpoints exactly
+- **Responsive**: TailwindCSS v4 (from welcome.blade.php style)
+
+## 🚀 Usage
+1. Run commands above
+2. Implement controllers: `php artisan make:controller Web/Admin/SportsController --resource`
+3. Add routes: `Route::prefix('web/admin')->resource('sports', Web\Admin\SportsController::class)`
+4. `npm run dev && php artisan serve`
+5. Visit /web/admin/sports (admin login required)
+
+Ready for implementation!
+

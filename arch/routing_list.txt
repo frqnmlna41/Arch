@@ -1,0 +1,127 @@
+# Routing List / Design Route untuk Arch Project (Laravel API)
+# Dibuat berdasarkan analisis Controllers, Requests, Models (2024)
+# Semua routes API-style (JSON responses), prefix: /api/v1
+# Authentication: Sanctum/Bearer token (auth:sanctum)
+# Groups by Role & Module
+# Existing: hanya GET / (welcome.blade.php)
+
+## 📋 OVERVIEW
+- **Controllers Analyzed**: 13+ (Admin/* full CRUD, multi-role: Athlete, EventParticipant, Score, Schedule)
+- **Roles**: admin (role:admin), coach (own athletes), athlete (own data), judge (scores/schedules), all auth (view)
+- **Middleware**: auth:sanctum, role:admin, permission:* (Spatie?), policies
+- **RESTful**: resource/apiResource + custom actions
+- **Pagination**: ?per_page=15&search=...
+- **Filters**: event_id, discipline_id, status, date, etc. (controller-handled)
+
+## 🛡️ ADMIN ROUTES (role:admin + permissions)
+### Resource CRUD (full: index/store/show/update/destroy)
+
+```
+Route::prefix('admin')->name('admin.')->group(function () {
+    Route::apiResource('sports', SportController::class);
+    Route::apiResource('disciplines', DisciplineController::class);
+    Route::apiResource('age-categories', AgeCategoryController::class);
+    Route::apiResource('events', EventController::class);
+    Route::apiResource('arenas', ArenaController::class);
+    Route::apiResource('matches', MatchController::class);
+    Route::apiResource('winners', WinnerController::class);
+    Route::apiResource('certificates', CertificateController::class);
+});
+```
+- **Examples**:
+  - GET/POST/PUT/DELETE /api/v1/admin/events (StoreEventRequest/UpdateEventRequest)
+  - Permissions: manage events, manage disciplines, etc.
+
+## 👥 MULTI-ROLE ROUTES (auth + permissions/policies)
+### Athletes (admin full CRUD, coach own, athlete self, judge view)
+```
+Route::apiResource('athletes', AthleteController::class)->except(['create', 'edit']);
+```
+- GET /api/v1/athletes?coach_id=1&gender=M&active=1&per_page=20 (coach: own only)
+- GET /api/v1/athletes/{id} (policy:view)
+- Requests: StoreAthleteRequest, UpdateAthleteRequest (photo upload)
+
+### Events Participants (admin manage all, coach register own)
+```
+Route::prefix('events')->name('events.')->group(function () {
+    Route::apiResource('participants', EventParticipantController::class)->shallow(); // /events/{event}/participants
+});
+```
+- GET /api/v1/events/{event}/participants?discipline_id=1&status=verified
+- POST /api/v1/events/{event}/participants (RegisterParticipantRequest)
+- POST /api/v1/events/{event}/participants/{participant}/verify (admin)
+- DELETE /api/v1/events/{event}/participants/{participant}
+
+### Scores (admin manage, judge input own)
+```
+Route::prefix('matches')->name('matches.')->group(function () {
+    Route::get('scores', [ScoreController::class, 'index']); // /matches/{match}/scores
+    No, index(Contest $match) => /matches/{match}/scores
+    POST /matches/{match}/scores (StoreScoreRequest)
+    PUT /matches/{match}/scores/{score} (UpdateScoreRequest)
+});
+```
+**Note**: Match=Contest model.
+
+### Schedules (all roles, role-based filtering)
+```
+Route::prefix('schedules')->name('schedules.')->group(function () {
+    Route::get('/', [ScheduleController::class, 'index']); // ?event_id=1&date=2024-01-01&arena_id=1
+    Route::get('/today', [ScheduleController::class, 'today']);
+    Route::get('/{match}', [ScheduleController::class, 'show']);
+    Route::get('/events/{event}', [ScheduleController::class, 'byEvent']); // Grouped by day/arena
+});
+```
+- Coach/athlete: auto-filter own; judge/admin: all
+
+## 🎯 CUSTOM/NON-STANDARD
+```
+# Winners calculate (admin POST)
+Route::prefix('admin')->group(function () {
+    POST /admin/matches/{match}/generate-results
+    POST /admin/events/{event}/calculate-winners -> WinnerController@calculate
+});
+
+# Certificates generate
+POST /admin/certificates/{winner}/generate (GenerateCertificateRequest)
+
+# Event status
+PATCH /admin/events/{event}/status
+```
+
+## 🔐 MIDDLEWARE GROUPS (in RouteServiceProvider)
+```
+Route::prefix('api/v1')->middleware(['auth:sanctum'])->group(function () {
+    // Admin
+    Route::prefix('admin')->middleware('role:admin')->group(...);
+    // Schedules etc.
+});
+
+Route::middleware('auth:sanctum')->prefix('api/v1')->group(...);
+```
+
+## 📝 IMPLEMENTATION NOTES
+1. **Add to routes/web.php**:
+```
+use App\Http\Controllers\Admin\{EventController, ...};
+Route::prefix('api/v1')->middleware('api')->group(function () { ... });
+```
+2. **Rate Limiting**: throttle:api
+3. **Validation**: Handled by Requests (FormRequest)
+4. **Policies**: AthletePolicy, EventPolicy (registerParticipant etc.)
+5. **Models Relations**: Used in eager loading (with athlete.coach, etc.)
+6. **Missing Routes**: No auth/register/login (assume separate AuthController)
+
+## 📊 SUMMARY BY CONTROLLER
+| Controller | Methods | Params | Role Access |
+|------------|---------|--------|-------------|
+| AthleteController | index/show/store/update/destroy | ?search,gender,club | admin/coach/athlete/judge |
+| ScheduleController | index/today/show/byEvent | ?event_id,date,... | all auth |
+| EventParticipantController | index/store/verify/reject/destroy | {event}/{participant} | admin/coach |
+| Admin/EventController | resource CRUD + changeStatus | - | admin |
+| ScoreController | index/store/update | {match}/{score} | admin/judge |
+| ... (similar for others) | | | |
+
+Total ~50+ routes proposed.
+Ready for implementation!
+
