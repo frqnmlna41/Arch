@@ -1,0 +1,9 @@
+# INSTALLATION
+
+## DaisyUI:
+*   ```npm i -D daisyui@latest```
+*   Added ```@plugin "daisyui";``` to resources/css/app.css
+
+## HTMX:
+*   ```npm install htmx.org@2.0.8
+*   Added ```import 'htmx.org';``` to resources/js/app.js
