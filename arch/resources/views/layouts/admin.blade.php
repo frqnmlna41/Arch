@@ -17,15 +17,15 @@
     @stack('styles')
 </head>
 
-<body class="bg-gray-50 text-gray-800">
+<body class="bg-gray-200 text-gray-800">
 
     <div class="flex min-h-screen">
 
         <!-- SIDEBAR -->
-        <aside class="w-64 bg-white border-r flex flex-col">
+        <aside class="w-64 bg-white flex flex-col">
 
             <!-- LOGO -->
-            <div class="h-16 flex items-center px-6 border-b">
+            <div class="h-16 flex items-center px-6">
                 <h2 class="text-lg font-bold flex items-center gap-2">
                     <div class="w-8 h-8 bg-orange-500 rounded-lg flex items-center justify-center text-white">
                         <i class="fas fa-trophy text-sm"></i>
@@ -73,7 +73,7 @@
 
                     <p class="mt-6 mb-2 text-xs text-gray-400 uppercase">User</p>
 
-                    <x-sidebar-link route="admin.perguruan.*" icon="school">
+                    <x-sidebar-link route="admin.perguruans.*" icon="school">
                         Perguruan
                     </x-sidebar-link>
 
@@ -112,7 +112,7 @@
         <div class="flex-1 flex flex-col">
 
             <!-- TOPBAR -->
-            <header class="h-16 bg-white border-b px-6 flex items-center justify-between">
+            <header class="h-16 bg-white px-6 flex items-center justify-between">
 
                 <!-- LEFT -->
                 <div class="flex items-center gap-4">

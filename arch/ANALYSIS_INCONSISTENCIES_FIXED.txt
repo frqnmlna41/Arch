@@ -50,7 +50,3 @@ php artisan serve
 
 END ANALYSIS
 
-
-## HAP'S NOTE:
-1. Added app/Http/Kernel.php to fix previous class error (can be ignored if you already made alternative fix, this is an AI's fix)
-2. Current web.php routing is changed just so the program could run first and for me to be able to continue working (we can use your routing later)

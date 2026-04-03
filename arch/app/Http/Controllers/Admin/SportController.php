@@ -8,6 +8,7 @@ use App\Http\Requests\Sport\UpdateSportRequest;
 use App\Models\Sport;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\View\View;
 
 /**
  * SportController
@@ -29,29 +30,41 @@ class SportController extends Controller
     // INDEX
     // ──────────────────────────────────────────────────────────────
 
-    public function index(Request $request): JsonResponse
+    public function index(Request $request): View
     {
-        try {
-            $sports = Sport::query()
-                ->withCount('disciplines')
-                ->when($request->boolean('active'), fn ($q) => $q->where('is_active', true))
-                ->when($request->search, fn ($q, $s) => $q->where('name', 'like', "%{$s}%"))
-                ->latest()
-                ->paginate($request->integer('per_page', 15));
+        $sports = Sport::query()
+            ->withCount('disciplines')
+            ->when($request->boolean('active'), fn ($q) => $q->where('is_active', true))
+            ->when($request->search, fn ($q, $s) => $q->where('name', 'like', "%{$s}%"))
+            ->latest()
+            ->paginate($request->integer('per_page', 15));
 
-            return response()->json([
-                'status'  => 'success',
-                'data'    => $sports,
-                'message' => 'Sports retrieved successfully.',
-            ]);
-        } catch (\Exception $e) {
-            return response()->json([
-                'status'  => 'error',
-                'message' => 'Failed to retrieve sports.',
-                'error'   => $e->getMessage(),
-            ], 500);
-        }
+        return view('admin.sports.index', compact('sports'));
     }
+
+    // public function index(Request $request): JsonResponse
+    // {
+    //     try {
+    //         $sports = Sport::query()
+    //             ->withCount('disciplines')
+    //             ->when($request->boolean('active'), fn ($q) => $q->where('is_active', true))
+    //             ->when($request->search, fn ($q, $s) => $q->where('name', 'like', "%{$s}%"))
+    //             ->latest()
+    //             ->paginate($request->integer('per_page', 15));
+
+    //         return response()->json([
+    //             'status'  => 'success',
+    //             'data'    => $sports,
+    //             'message' => 'Sports retrieved successfully.',
+    //         ]);
+    //     } catch (\Exception $e) {
+    //         return response()->json([
+    //             'status'  => 'error',
+    //             'message' => 'Failed to retrieve sports.',
+    //             'error'   => $e->getMessage(),
+    //         ], 500);
+    //     }
+    // }
 
     // ──────────────────────────────────────────────────────────────
     // STORE

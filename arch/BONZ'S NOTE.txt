@@ -1,0 +1,11 @@
+# BONZ'S NOTE:
+
+## April 2nd 2026
+1. Added app/Http/Kernel.php to fix previous class error (can be ignored if you already made alternative fix, this is an AI's fix)
+2. Current web.php routing is changed just so the program could run first and for me to be able to continue working (we can use your routing later)
+
+## April 4th 2026
+1. Sports index's view is now ready to be developed
+2. Changes made at PerguruanController, SportController, and AuthController (Old codes are commented out)
+3. Account registration for Perguruan is now available
+4. Perguruan's pending account not showed at /admin/pending-perguruans (unresolved problem)

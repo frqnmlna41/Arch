@@ -14,7 +14,7 @@
                 <p class="text-gray-600 mt-1">Kelola seluruh sistem kejuaraan</p>
             </div>
             <div class="flex space-x-3">
-                <a href="{{ route('admin.perguruan.index') }}" class="btn-primary py-2 px-6">
+                <a href="{{ route('admin.perguruans.index') }}" class="btn-primary py-2 px-6">
                     <i class="fas fa-school mr-2"></i>
                     Kelola Perguruan
                 </a>

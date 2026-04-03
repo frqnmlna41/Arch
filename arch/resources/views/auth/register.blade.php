@@ -22,7 +22,7 @@
                             </div>
 
                             <div class="text-center">
-                                <a href="{{ route('auth.login') }}" class="btn btn-primary btn-lg me-3">
+                                <a href="/login" class="btn btn-primary btn-lg me-3">
                                     <i class="fas fa-sign-in-alt me-2"></i> Login
                                 </a>
                                 <a href="{{ route('auth.register-perguruan') }}" class="btn btn-outline-primary btn-lg">

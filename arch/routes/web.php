@@ -45,6 +45,7 @@ Route::prefix('auth')->name('auth.')->group(function () {
 
     Route::post('/login', [AuthController::class, 'login'])->name('login.post');
 
+    Route::get('/register-perguruan', fn() => view('auth.register-perguruan'))->name('register-perguruan');
     Route::post('/register-perguruan', [AuthController::class, 'registerPerguruan'])
         ->name('register-perguruan');
 
@@ -144,7 +145,7 @@ Route::prefix('admin')
         Route::post('events/{event}/certificates/generate-all', [CertificateController::class, 'generateAll'])->name('certificates.generate-all');
 
         // Perguruan Management
-        Route::resource('perguruan', PerguruanController::class)->parameters(['perguruans' => 'user']);
+        Route::resource('perguruans', PerguruanController::class)->parameters(['perguruans' => 'user']);
         Route::patch('perguruans/{user}/verify', [PerguruanController::class, 'verify'])->name('perguruans.verify');
         Route::patch('perguruans/{user}/reject', [PerguruanController::class, 'reject'])->name('perguruans.reject');
     });

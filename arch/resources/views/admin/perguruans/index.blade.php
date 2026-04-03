@@ -21,7 +21,7 @@
         </div>
 
         <div class="card-body">
-            @include('partials._table', [
+            @include('components._table', [
                 'headers' => ['No', 'Name', 'Email', 'Phone', 'Perguruan', 'Registered', 'Actions'],
                 'rows' => $perguruans->map(function ($user, $index) {
                     return [
@@ -70,7 +70,7 @@
         </div>
     </div>
 
-    @include('partials._modal', [
+    @include('components._modal', [
         'id' => 'verifyModal',
         'title' => 'Verify Perguruan',
         'body' => '
