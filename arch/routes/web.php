@@ -123,12 +123,11 @@ Route::prefix('admin')
         Route::apiResource('matches', MatchController::class)
             ->middleware('permission:manage matches');
 
-    });
-        // Perguruan Management
-Route::resource('perguruan', PerguruanController::class)->parameters(['perguruans' => 'user']);
-        Route::patch('perguruans/{user}/verify', [PerguruanController::class, 'verify'])->name('perguruans.verify');
-        Route::patch('perguruans/{user}/reject', [PerguruanController::class, 'reject'])->name('perguruans.reject');
-    });
+    // Perguruan Management
+    Route::resource('perguruan', PerguruanController::class)->parameters(['perguruans' => 'user']);
+    Route::patch('perguruans/{user}/verify', [PerguruanController::class, 'verify'])->name('perguruans.verify');
+    Route::patch('perguruans/{user}/reject', [PerguruanController::class, 'reject'])->name('perguruans.reject');
+});
 
     // ────────────────────────────────────────────────────────────
     // ATHLETE MANAGEMENT (admin + coach)
@@ -178,3 +177,4 @@ Route::resource('perguruan', PerguruanController::class)->parameters(['perguruan
     Route::get('certificates/{certificate}/download', [CertificateController::class, 'download'])
         ->name('certificates.download');
 });
+

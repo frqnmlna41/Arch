@@ -64,66 +64,42 @@ Route::middleware('auth:sanctum')->group(function () {
     // ────────────────────────────────────────────────────────────
     // ADMIN ROUTES
     // ────────────────────────────────────────────────────────────
-// Route::get('/admin/dashboard', [DashboardController::class, 'index'])->name('admin.dashboard');
-// Route::prefix('admin')->name('admin.')->middleware(['auth:sanctum', 'role:admin'])->group(function () {
+Route::get('/admin/dashboard', [DashboardController::class, 'index'])->name('admin.dashboard');
+Route::prefix('admin')->name('admin.')->middleware('role:admin')->group(function () {
 
-//         // Sports
-//         Route::apiResource('sports', SportController::class);
+        // Sports
+        Route::apiResource('sports', SportController::class);
 
-//         // Disciplines
-//         Route::apiResource('disciplines', DisciplineController::class);
+        // Disciplines
+        Route::apiResource('disciplines', DisciplineController::class);
 
-//         // Age Categories
-//         Route::apiResource('age-categories', AgeCategoryController::class);
+        // Age Categories
+        Route::apiResource('age-categories', AgeCategoryController::class);
 
-//         // Arenas
-//         Route::apiResource('arenas', ArenaController::class);
+        // Arenas
+        Route::apiResource('arenas', ArenaController::class);
 
-//         // Events
-//         Route::apiResource('events', EventController::class);
-//         Route::patch('events/{event}/status', [EventController::class, 'changeStatus'])->name('events.status');
+        // Events
+        Route::apiResource('events', EventController::class);
+        Route::patch('events/{event}/status', [EventController::class, 'changeStatus'])->name('events.status');
 
-//         // Matches
-//         Route::apiResource('matches', MatchController::class);
-//         Route::post('events/{event}/matches/generate',      [MatchController::class, 'generate'])->name('matches.generate');
-//         Route::patch('matches/{match}/arena',               [MatchController::class, 'assignArena'])->name('matches.arena');
-//         Route::patch('matches/{match}/schedule',            [MatchController::class, 'assignSchedule'])->name('matches.schedule');
+        // Matches
+        Route::apiResource('matches', MatchController::class);
+        Route::post('events/{event}/matches/generate',      [MatchController::class, 'generate'])->name('matches.generate');
+        Route::patch('matches/{match}/arena',               [MatchController::class, 'assignArena'])->name('matches.arena');
+        Route::patch('matches/{match}/schedule',            [MatchController::class, 'assignSchedule'])->name('matches.schedule');
 
-//         // Winners
-//         Route::get('winners',                               [WinnerController::class, 'index'])->name('winners.index');
-//         Route::get('winners/{winner}',                      [WinnerController::class, 'show'])->name('winners.show');
-//         Route::post('events/{event}/winners/calculate',     [WinnerController::class, 'calculate'])->name('winners.calculate');
-//         Route::delete('winners/{winner}',                   [WinnerController::class, 'destroy'])->name('winners.destroy');
+        // Winners
+        Route::get('winners',                               [WinnerController::class, 'index'])->name('winners.index');
+        Route::get('winners/{winner}',                      [WinnerController::class, 'show'])->name('winners.show');
+        Route::post('events/{event}/winners/calculate',     [WinnerController::class, 'calculate'])->name('winners.calculate');
+        Route::delete('winners/{winner}',                   [WinnerController::class, 'destroy'])->name('winners.destroy');
 
-//         // Certificates
-//         Route::get('certificates',                          [CertificateController::class, 'index'])->name('certificates.index');
-//         Route::post('winners/{winner}/certificate',         [CertificateController::class, 'generate'])->name('certificates.generate');
-//         Route::post('events/{event}/certificates/generate-all', [CertificateController::class, 'generateAll'])->name('certificates.generate-all');
-Route::prefix('admin')
-    ->name('admin.')
-    ->middleware(['auth:sanctum', 'role:admin'])
-    ->group(function () {
+        // Certificates
+        Route::get('certificates',                          [CertificateController::class, 'index'])->name('certificates.index');
+        Route::post('winners/{winner}/certificate',         [CertificateController::class, 'generate'])->name('certificates.generate');
+        Route::post('events/{event}/certificates/generate-all', [CertificateController::class, 'generateAll'])->name('certificates.generate-all');
 
-        Route::get('/dashboard', [DashboardController::class, 'index'])
-            ->name('dashboard');
-
-        // SPORTS
-        Route::apiResource('sports', SportController::class)
-            ->middleware('permission:manage sports');
-
-        // EVENTS
-        Route::apiResource('events', EventController::class)
-            ->middleware('permission:manage events');
-
-        Route::patch('events/{event}/status',
-            [EventController::class, 'changeStatus']
-        )->name('events.status');
-
-        // MATCHES
-        Route::apiResource('matches', MatchController::class)
-            ->middleware('permission:manage matches');
-
-    });
         // Perguruan Management
 Route::resource('perguruan', PerguruanController::class)->parameters(['perguruans' => 'user']);
         Route::patch('perguruans/{user}/verify', [PerguruanController::class, 'verify'])->name('perguruans.verify');
