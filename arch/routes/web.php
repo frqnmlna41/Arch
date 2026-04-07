@@ -148,7 +148,28 @@ Route::prefix('admin')
         Route::resource('perguruans', PerguruanController::class)->parameters(['perguruans' => 'user']);
         Route::patch('perguruans/{user}/verify', [PerguruanController::class, 'verify'])->name('perguruans.verify');
         Route::patch('perguruans/{user}/reject', [PerguruanController::class, 'reject'])->name('perguruans.reject');
+
+        // Testing route untuk dashboard perguruan (sementara)
+        Route::get('dashboard-perguruan', function () {
+            return view('dashboard.perguruan');
+        })->name('dashboard.perguruan');
+        Route::get('dashboard-perguruan/add-athlete', function () {
+            return view('admin.athletes.create');
+        })->name('create.athlete');
     });
+
+    Route::prefix('perguruan')
+        ->name('perguruan.')
+        ->middleware(['auth:sanctum', 'role:coach'])
+        ->group(function () {
+            Route::get('/dashboard', function () {
+                return view ('dashboard.perguruan');
+            })
+                ->name('dashboard');
+
+            Route::get('/events', [PerguruanController::class, 'events'])
+                ->name('events');
+        });
 
     // ────────────────────────────────────────────────────────────
     // ATHLETE MANAGEMENT (admin + coach)

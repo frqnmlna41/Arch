@@ -5,6 +5,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\User;
+use Illuminate\Support\Str;
 use App\Models\Perguruan;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
@@ -50,7 +51,7 @@ class AuthController extends Controller
     {
         return match (true) {
             $user->hasRole('admin')   => redirect()->route('admin.dashboard'),
-            $user->hasRole('coach')   => redirect()->route('coach.dashboard'),
+            $user->hasRole('coach')   => redirect()->route('dashboard.perguruan'),
             $user->hasRole('athlete') => redirect()->route('athlete.dashboard'),
             default                   => redirect('/dashboard'),
         };
@@ -102,15 +103,16 @@ class AuthController extends Controller
             // $user->assignRole('perguruan');
 
             // Create the linked Perguruan profile (Adjust this to match your actual DB structure)
-            /*
+            
             $perguruan = Perguruan::create([
                 'user_id' => $user->id,
                 'name'    => $validated['perguruan_name'],
+                'slug'    => Str::slug($validated['perguruan_name']),
                 'address' => $validated['address'],
                 'phone'   => $validated['phone'],
                 'logo'    => $logoPath,
             ]);
-            */
+            
 
             DB::commit();
 

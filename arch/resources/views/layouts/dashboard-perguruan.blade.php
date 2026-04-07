@@ -43,55 +43,37 @@
 
                 <div class="px-4 space-y-1">
 
-                    <x-sidebar-link route="admin.dashboard" icon="tachometer-alt">
+                    <x-sidebar-link route="dashboard.perguruan" icon="tachometer-alt">
                         Dashboard
                     </x-sidebar-link>
 
-                    <p class="mt-6 mb-2 text-xs text-gray-400 uppercase">Master</p>
+                    <p class="mt-6 mb-2 text-xs text-gray-400 uppercase">Management</p>
 
-                    <x-sidebar-link route="admin.sports.*" icon="trophy">
-                        Olahraga
+                    <x-sidebar-link route="#" icon="school">
+                        Perguruan
                     </x-sidebar-link>
 
-                    <x-sidebar-link route="admin.disciplines.*" icon="gavel">
-                        Disiplin
-                    </x-sidebar-link>
-
-                    <x-sidebar-link route="admin.age-categories.*" icon="users">
-                        Kategori Umur
-                    </x-sidebar-link>
-
-                    <x-sidebar-link route="admin.arenas.*" icon="map-marker-alt">
-                        Arena
+                    <x-sidebar-link route="#" icon="user-friends">
+                        Atlet
                     </x-sidebar-link>
 
                     <p class="mt-6 mb-2 text-xs text-gray-400 uppercase">Event</p>
 
-                    <x-sidebar-link route="admin.events.*" icon="calendar">
+                    <x-sidebar-link route="#" icon="calendar">
                         Event
                     </x-sidebar-link>
 
-                    <x-sidebar-link route="admin.matches.*" icon="fist-raised">
+                    <x-sidebar-link route="#" icon="fist-raised">
                         Pertandingan
-                    </x-sidebar-link>
-
-                    <p class="mt-6 mb-2 text-xs text-gray-400 uppercase">User</p>
-
-                    <x-sidebar-link route="admin.perguruans.*" icon="school">
-                        Perguruan
-                    </x-sidebar-link>
-
-                    <x-sidebar-link route="admin.athletes.*" icon="user-friends">
-                        Atlet
                     </x-sidebar-link>
 
                     <p class="mt-6 mb-2 text-xs text-gray-400 uppercase">Hasil</p>
 
-                    <x-sidebar-link route="admin.winners.*" icon="medal">
+                    <x-sidebar-link route="#" icon="medal">
                         Pemenang
                     </x-sidebar-link>
 
-                    <x-sidebar-link route="admin.certificates.*" icon="certificate">
+                    <x-sidebar-link route="#" icon="certificate">
                         Sertifikat
                     </x-sidebar-link>
 

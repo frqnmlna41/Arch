@@ -9,3 +9,16 @@
 2. Changes made at PerguruanController, SportController, and AuthController (Old codes are commented out)
 3. Account registration for Perguruan is now available
 4. Perguruan's pending account not showed at /admin/pending-perguruans (unresolved problem)
+
+## April 6th 2026
+1. Added temporary route for front end development process using admin role
+2. Activate and made changes in views/dashboard/perguruan.blade.php using layouts.app
+
+## April 7th 2026
+1. Changes made in AuthController for registerPerguruan's function but can be reverted or updated later
+2. Create Athlete for Perguruan is now available using admin.athletes.create as the blade file, but the structure could be shuffled later on depends on the needs
+3. Because of the problem when I cannot logout after try logging in using newly created perguruan account, welcome.blade.php now has logout button
+
+## April 8th 2026
+1. Change layouts.admin so it is now dynamic for mobile devices
+2. Added layouts.dashboard-perguruan for perguruan's dashboard layout (It can be changed later for perguruan role account when the role is ready)

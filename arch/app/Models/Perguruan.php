@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Str;
 
 class Perguruan extends Model
 {
@@ -13,6 +14,7 @@ class Perguruan extends Model
 
     // ── Fillable ─────────────────────────────────────────
     protected $fillable = [
+        'user_id',
         'name',
         'slug',
         'address',
@@ -89,4 +91,3 @@ class Perguruan extends Model
     }
 
 }
-

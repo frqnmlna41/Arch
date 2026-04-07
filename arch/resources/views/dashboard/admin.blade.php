@@ -196,7 +196,7 @@
                         <div class="flex items-center justify-between">
                             <div class="flex items-center">
                                 <div
-                                    class="w-10 h-10 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-full flex items-center justify-center text-white font-semibold">
+                                    class="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-semibold">
                                     {{ substr($user->name, 0, 2) }}
                                 </div>
                                 <div class="ml-3">

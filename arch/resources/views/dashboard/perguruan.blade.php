@@ -1,6 +1,6 @@
-@extends('layouts.app')
+@extends('layouts.dashboard-perguruan')
 
-@section('title', 'Perguruan Dashboard')
+@section('title', 'Dashboard Perguruan')
 
 @section('content')
     <div class="space-y-6">
@@ -11,7 +11,7 @@
                     <i class="fas fa-school mr-3 text-emerald-600"></i>
                     Dashboard Perguruan
                 </h1>
-                <p class="text-gray-600 mt-1">{{ $user->perguruan?->name ?? $user->name }}</p>
+                <p class="text-gray-600 mt-1">{{ 'Perguruan Kung Fu' }}</p>
             </div>
         </div>
 
@@ -25,7 +25,7 @@
                     <div class="ml-4">
                         <p class="text-sm font-medium text-gray-600">Atlet Saya</p>
                         <p class="text-2xl font-bold text-gray-900">
-                            {{ number_format($user->athletes()->active()->count()) }}
+                            {{ '15' }}
                         </p>
                     </div>
                 </div>
@@ -39,7 +39,7 @@
                     <div class="ml-4">
                         <p class="text-sm font-medium text-gray-600">Pendaftaran Aktif</p>
                         <p class="text-2xl font-bold text-gray-900">
-                            {{ number_format(App\Models\EventParticipant::where('registered_by', $user->id)->where('status', 'verified')->count()) }}
+                            {{ '112' }}
                         </p>
                     </div>
                 </div>
@@ -53,7 +53,7 @@
                     <div class="ml-4">
                         <p class="text-sm font-medium text-gray-600">Juara</p>
                         <p class="text-2xl font-bold text-gray-900">
-                            {{ number_format(App\Models\Winner::whereHas('eventParticipant.registeredBy', fn($q) => $q->where('id', $user->id))->count()) }}
+                            {{ '5' }}
                         </p>
                     </div>
                 </div>
@@ -66,7 +66,7 @@
             <div class="bg-white p-6 rounded-xl shadow-lg">
                 <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
                     <i class="fas fa-users mr-2 text-emerald-500"></i>
-                    Atlet Saya ({{ $user->athletes()->count() }})
+                    Atlet Saya ({{ '15' }})
                 </h3>
                 <div class="overflow-x-auto">
                     <table class="w-full">
@@ -79,15 +79,14 @@
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-200">
-                            @forelse($user->athletes()->active()->latest()->take(5) as $athlete)
+                            @forelse([1, 2, 3] as $dummy)
                                 <tr class="hover:bg-gray-50">
                                     <td class="py-3">
-                                        <div class="font-medium text-gray-900">{{ $athlete->name }}</div>
-                                        <div class="text-sm text-gray-500">
-                                            {{ $athlete->gender == 'male' ? 'Laki-laki' : 'Perempuan' }}</div>
+                                    <div class="font-medium text-gray-900">{{ 'Nama Atlet Placeholder' }}</div>
+                                    <div class="text-sm text-gray-500">{{ 'Laki-laki' }}</div>
                                     </td>
-                                    <td class="py-3 text-sm font-medium text-gray-900">{{ $athlete->age }} th</td>
-                                    <td class="py-3 text-sm font-medium text-gray-900">{{ $athlete->weight ?? '-' }} kg</td>
+                                <td class="py-3 text-sm font-medium text-gray-900">{{ '20' }} th</td>
+                                <td class="py-3 text-sm font-medium text-gray-900">{{ '65' }} kg</td>
                                     <td class="py-3 text-right">
                                         <span
                                             class="px-2 py-1 text-xs bg-green-100 text-green-800 rounded-full font-medium">
@@ -105,7 +104,7 @@
                         </tbody>
                     </table>
                 </div>
-                <a href="{{ route('athletes.create') }}"
+                <a href="dashboard-perguruan/add-athlete"
                     class="mt-4 inline-block bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg font-medium">
                     <i class="fas fa-plus mr-2"></i>Tambah Atlet
                 </a>
@@ -117,20 +116,19 @@
                     <i class="fas fa-calendar mr-2 text-blue-500"></i>
                     Event Aktif
                 </h3>
-                @php
+                {{-- @php
                     $activeEvents = App\Models\Event::active()->get();
-                @endphp
+                @endphp --}}
                 <div class="space-y-3">
-                    @forelse($activeEvents as $event)
+                    @forelse([1, 2] as $dummy)
                         <div class="p-4 border rounded-lg hover:bg-blue-50 transition-colors">
                             <div class="flex justify-between items-start">
                                 <div>
-                                    <h4 class="font-semibold text-gray-900">{{ $event->name }}</h4>
-                                    <p class="text-sm text-gray-600">{{ $event->start_date->format('d M Y') }} -
-                                        {{ $event->end_date->format('d M Y') }}</p>
+                                    <h4 class="font-semibold text-gray-900">{{ 'Q Square Competition' }}</h4>
+                                    <p class="text-sm text-gray-600">{{ '10 Jan 2026' }} - {{ '15 Jan 2026' }}</p>
                                 </div>
                                 <span class="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full font-medium">
-                                    {{ $event->participants->where('registered_by', $user->id)->where('status', 'verified')->count() }}
+                                    {{ '25' }}
                                     atlet
                                 </span>
                             </div>
