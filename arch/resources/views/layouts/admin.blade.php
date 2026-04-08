@@ -97,8 +97,15 @@
 
                 </div>
 
-                <!-- LOGOUT -->
                 <div class="px-4 mt-6">
+                    <a href="/" class="w-full flex items-center gap-2 px-4 py-2 text-blue-400 hover:bg-blue-50 rounded-lg transition">
+                        <i class="fas fa-home"></i>
+                        Halaman Utama
+                    </a>
+                </div>
+
+                <!-- LOGOUT -->
+                <div class="px-4 mt-2">
                     <form method="POST" action="{{ route('auth.logout') }}">
                         @csrf
                         <button
