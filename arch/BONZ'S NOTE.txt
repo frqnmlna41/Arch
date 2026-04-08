@@ -22,3 +22,6 @@
 ## April 8th 2026
 1. Change layouts.admin so it is now dynamic for mobile devices
 2. Added layouts.dashboard-perguruan for perguruan's dashboard layout (It can be changed later for perguruan role account when the role is ready)
+3. Write the codes components._navbar
+4. Added resources/assets folder and images
+5. Re-writing codes for welcome.blade.php

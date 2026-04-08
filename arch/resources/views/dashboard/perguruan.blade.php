@@ -17,7 +17,7 @@
 
         <!-- Stats Cards -->
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <div class="bg-white p-6 rounded-xl shadow-lg hover:shadow-xl transition-shadow">
+            <div class="bg-base-100 p-6 rounded-xl shadow-lg hover:shadow-xl transition-shadow">
                 <div class="flex items-center">
                     <div class="p-3 bg-emerald-100 rounded-lg">
                         <i class="fas fa-dumbbell text-2xl text-emerald-600"></i>
@@ -31,7 +31,7 @@
                 </div>
             </div>
 
-            <div class="bg-white p-6 rounded-xl shadow-lg hover:shadow-xl transition-shadow">
+            <div class="bg-base-100 p-6 rounded-xl shadow-lg hover:shadow-xl transition-shadow">
                 <div class="flex items-center">
                     <div class="p-3 bg-blue-100 rounded-lg">
                         <i class="fas fa-calendar-check text-2xl text-blue-600"></i>
@@ -45,7 +45,7 @@
                 </div>
             </div>
 
-            <div class="bg-white p-6 rounded-xl shadow-lg hover:shadow-xl transition-shadow">
+            <div class="bg-base-100 p-6 rounded-xl shadow-lg hover:shadow-xl transition-shadow">
                 <div class="flex items-center">
                     <div class="p-3 bg-purple-100 rounded-lg">
                         <i class="fas fa-medal text-2xl text-purple-600"></i>
@@ -63,7 +63,7 @@
         <!-- Quick Actions -->
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <!-- My Athletes -->
-            <div class="bg-white p-6 rounded-xl shadow-lg">
+            <div class="bg-base-100 p-6 rounded-xl shadow-lg">
                 <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
                     <i class="fas fa-users mr-2 text-emerald-500"></i>
                     Atlet Saya ({{ '15' }})
@@ -111,7 +111,7 @@
             </div>
 
             <!-- Recent Events -->
-            <div class="bg-white p-6 rounded-xl shadow-lg">
+            <div class="bg-base-100 p-6 rounded-xl shadow-lg">
                 <h3 class="text-lg font-semibold text-gray-900 mb-4">
                     <i class="fas fa-calendar mr-2 text-blue-500"></i>
                     Event Aktif

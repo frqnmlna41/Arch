@@ -154,7 +154,7 @@
                 @include('components._alerts')
 
                 <!-- CONTENT WRAPPER -->
-                <div class="bg-white rounded-xl shadow-sm p-6">
+                <div class="bg-base-100 rounded-xl shadow-sm p-6">
                     @yield('content')
                 </div>
 
