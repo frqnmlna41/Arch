@@ -14,7 +14,7 @@
             <h1 class="text-3xl font-bold text-center">Selamat Datang di Q Square Martial Arts Competition</h1>
             <p class="text-center text-base-content mt-4">Bergabunglah dengan turnamen bela diri yang menantang dan menarik!</p>
             <div class="flex justify-center mt-6">
-                <a href="https://drive.google.com/file/d/10Rfv201iddVEF4PcIix78ob-pTivJjP1/view?usp=drivesdk" class="btn btn-accent btn-lg text-white shadow-sm hover:shadow-lg">Download Juklak Pertandingan</a>
+                <a href="https://drive.google.com/file/d/10Rfv201iddVEF4PcIix78ob-pTivJjP1/view?usp=drivesdk" class="btn btn-warning btn-lg text-white shadow-sm hover:shadow-lg">Unduh Juklak Pertandingan</a>
             </div>
         </div>
         <img src="{{ Vite::asset('resources/assets/Maskot_3.png') }}" alt="Maskot 3" class="w-32 md:w-40 h-auto object-contain" />
@@ -34,7 +34,7 @@
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">
-            <div class="bg-base-100 p-6 rounded-xl shadow-lg hover:shadow-xl transition-shadow">
+            <div class="bg-white p-6 rounded-xl shadow-lg hover:shadow-xl transition-shadow">
                 <div class="flex items-center">
                     <div class="p-3 bg-emerald-100 rounded-lg">
                         <i class="fas fa-school text-2xl text-emerald-600"></i>
@@ -48,7 +48,7 @@
                 </div>
             </div>
 
-            <div class="bg-base-100 p-6 rounded-xl shadow-lg hover:shadow-xl transition-shadow">
+            <div class="bg-white p-6 rounded-xl shadow-lg hover:shadow-xl transition-shadow">
                 <div class="flex items-center">
                     <div class="p-3 bg-blue-100 rounded-lg">
                         <i class="fas fa-calendar-check text-2xl text-blue-600"></i>
@@ -62,7 +62,7 @@
                 </div>
             </div>
 
-            <div class="bg-base-100 p-6 rounded-xl shadow-lg hover:shadow-xl transition-shadow">
+            <div class="bg-white p-6 rounded-xl shadow-lg hover:shadow-xl transition-shadow">
                 <div class="flex items-center">
                     <div class="p-3 bg-purple-100 rounded-lg">
                         <i class="fas fa-medal text-2xl text-purple-600"></i>
@@ -76,7 +76,7 @@
                 </div>
             </div>
 
-            <div class="bg-base-100 p-6 rounded-xl shadow-lg hover:shadow-xl transition-shadow">
+            <div class="bg-white p-6 rounded-xl shadow-lg hover:shadow-xl transition-shadow">
                 <div class="flex items-center">
                     <div class="p-3 bg-purple-100 rounded-lg">
                         <i class="fas fa-calendar text-2xl text-orange-600"></i>
@@ -90,7 +90,7 @@
                 </div>
             </div>
 
-            <div class="bg-base-100 p-6 rounded-xl shadow-lg hover:shadow-xl transition-shadow">
+            <div class="bg-white p-6 rounded-xl shadow-lg hover:shadow-xl transition-shadow">
                 <div class="flex items-center">
                     <div class="p-3 bg-purple-100 rounded-lg">
                         <i class="fas fa-map-marker-alt text-2xl text-yellow-600"></i>

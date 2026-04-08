@@ -1,4 +1,4 @@
-<nav aria-label="Global" class="mx-auto flex items-center justify-between backdrop:bg-base-100/30 backdrop:backdrop-blur-sm p-6 lg:px-8">
+<nav aria-label="Global" class="sticky top-0 z-50 mx-auto flex items-center justify-between p-6 lg:px-8 bg-base-200/60 backdrop-blur-md">
     <div class="flex lg:flex-1">
       <a href="/" class="-m-1.5 p-1.5">
         <span class="sr-only">Q Square Martial Arts Competition</span>
@@ -14,9 +14,9 @@
       </button>
     </div>
     <el-popover-group class="hidden lg:flex lg:gap-x-12">
-      <a href="/" class="text-sm/6 font-semibold text-base-content"">Beranda</a>
-      <a href="#" class="text-sm/6 font-semibold text-base-content"">Data Peserta</a>
-      <a href="#" class="text-sm/6 font-semibold text-base-content"">Pertandingan</a>
+      <a href="/" class="text-sm/6 font-semibold text-base-content">Beranda</a>
+      <a href="#" class="text-sm/6 font-semibold text-base-content">Data Peserta</a>
+      <a href="#" class="text-sm/6 font-semibold text-base-content">Pertandingan</a>
     </el-popover-group>
     @if (Route::has('login'))
     <div class="hidden lg:flex lg:flex-1 lg:justify-end">
@@ -27,9 +27,9 @@
                 Keluar
             </button>
         </form>
-        <a href="{{ url('/admin/dashboard') }}" class="text-sm/6 font-semibold text-base-content"">Dashboard <span aria-hidden="true">&rarr;</span></a>
+        <a href="{{ url('/admin/dashboard') }}" class="text-sm/6 font-semibold text-base-content">Dashboard <span aria-hidden="true">&rarr;</span></a>
       @else
-        <a href="{{ route('register') }}" class="text-sm/6 font-semibold text-base-content"">Masuk <span aria-hidden="true">&rarr;</span></a>
+        <a href="{{ route('register') }}" class="text-sm/6 font-semibold text-base-content">Masuk <span aria-hidden="true">&rarr;</span></a>
         @endauth
     </div>
     @endif
