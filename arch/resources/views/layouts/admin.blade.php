@@ -11,10 +11,14 @@
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
+    <!-- CSRF Token -->
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     @stack('styles')
+
 </head>
 
 <body class="bg-gray-200 text-gray-800">
@@ -28,95 +32,100 @@
             <!-- SIDEBAR -->
             <aside class="w-64 bg-white flex flex-col min-h-screen">
 
-            <!-- LOGO -->
-            <div class="h-16 flex items-center px-6">
-                <h2 class="text-lg font-bold flex items-center gap-2">
-                    <div class="w-8 h-8 bg-orange-500 rounded-lg flex items-center justify-center text-white">
-                        <i class="fas fa-trophy text-sm"></i>
+                <!-- LOGO -->
+                <div class="h-16 flex items-center px-6">
+                    <h2 class="text-lg font-bold flex items-center gap-2">
+                        <div class="w-8 h-8 bg-orange-500 rounded-lg flex items-center justify-center text-white">
+                            <i class="fas fa-trophy text-sm"></i>
+                        </div>
+                        Arch CMS
+                    </h2>
+                </div>
+
+                <!-- MENU -->
+                <nav class="flex-1 overflow-y-auto py-4 text-sm">
+
+                    <div class="px-4 space-y-1">
+
+                        <x-sidebar-link route="admin.dashboard" icon="tachometer-alt">
+                            Dashboard
+                        </x-sidebar-link>
+
+                        <p class="mt-6 mb-2 text-xs text-gray-400 uppercase">Master</p>
+
+                        <x-sidebar-link route="admin.sports.*" icon="trophy">
+                            Olahraga
+                        </x-sidebar-link>
+
+                        <x-sidebar-link route="admin.disciplines.*" icon="gavel">
+                            Disiplin
+                        </x-sidebar-link>
+
+                        <x-sidebar-link route="admin.age-categories.*" icon="users">
+                            Kategori Umur
+                        </x-sidebar-link>
+
+                        <x-sidebar-link route="admin.arenas.*" icon="map-marker-alt">
+                            Arena
+                        </x-sidebar-link>
+
+                        <p class="mt-6 mb-2 text-xs text-gray-400 uppercase">Event</p>
+
+                        <x-sidebar-link route="admin.events.*" icon="calendar">
+                            Event
+                        </x-sidebar-link>
+
+                        <x-sidebar-link route="admin.matches.*" icon="fist-raised">
+                            Pertandingan
+                        </x-sidebar-link>
+
+                        <p class="mt-6 mb-2 text-xs text-gray-400 uppercase">User</p>
+
+                        <x-sidebar-link route="admin.coaches.*" icon="school">
+                            User
+                        </x-sidebar-link>
+
+                        <x-sidebar-link route="admin.perguruans.*" icon="school">
+                            Perguruan
+                        </x-sidebar-link>
+
+                        <x-sidebar-link route="admin.athletes.*" icon="user-friends">
+                            Atlet
+                        </x-sidebar-link>
+
+                        <p class="mt-6 mb-2 text-xs text-gray-400 uppercase">Hasil</p>
+
+                        <x-sidebar-link route="admin.winners.*" icon="medal">
+                            Pemenang
+                        </x-sidebar-link>
+
+                        <x-sidebar-link route="admin.certificates.*" icon="certificate">
+                            Sertifikat
+                        </x-sidebar-link>
+
                     </div>
-                    Arch CMS
-                </h2>
-            </div>
 
-            <!-- MENU -->
-            <nav class="flex-1 overflow-y-auto py-4 text-sm">
+                    <div class="px-4 mt-6">
+                        <a href="/"
+                            class="w-full flex items-center gap-2 px-4 py-2 text-blue-400 hover:bg-blue-50 rounded-lg transition">
+                            <i class="fas fa-home"></i>
+                            Halaman Utama
+                        </a>
+                    </div>
 
-                <div class="px-4 space-y-1">
+                    <!-- LOGOUT -->
+                    <div class="px-4 mt-2">
+                        <form method="POST" action="{{ route('auth.logout') }}">
+                            @csrf
+                            <button
+                                class="w-full flex items-center gap-2 px-4 py-2 text-red-500 hover:bg-red-50 rounded-lg transition">
+                                <i class="fas fa-sign-out-alt"></i>
+                                Logout
+                            </button>
+                        </form>
+                    </div>
 
-                    <x-sidebar-link route="admin.dashboard" icon="tachometer-alt">
-                        Dashboard
-                    </x-sidebar-link>
-
-                    <p class="mt-6 mb-2 text-xs text-gray-400 uppercase">Master</p>
-
-                    <x-sidebar-link route="admin.sports.*" icon="trophy">
-                        Olahraga
-                    </x-sidebar-link>
-
-                    <x-sidebar-link route="admin.disciplines.*" icon="gavel">
-                        Disiplin
-                    </x-sidebar-link>
-
-                    <x-sidebar-link route="admin.age-categories.*" icon="users">
-                        Kategori Umur
-                    </x-sidebar-link>
-
-                    <x-sidebar-link route="admin.arenas.*" icon="map-marker-alt">
-                        Arena
-                    </x-sidebar-link>
-
-                    <p class="mt-6 mb-2 text-xs text-gray-400 uppercase">Event</p>
-
-                    <x-sidebar-link route="admin.events.*" icon="calendar">
-                        Event
-                    </x-sidebar-link>
-
-                    <x-sidebar-link route="admin.matches.*" icon="fist-raised">
-                        Pertandingan
-                    </x-sidebar-link>
-
-                    <p class="mt-6 mb-2 text-xs text-gray-400 uppercase">User</p>
-
-                    <x-sidebar-link route="admin.perguruans.*" icon="school">
-                        Perguruan
-                    </x-sidebar-link>
-
-                    <x-sidebar-link route="admin.athletes.*" icon="user-friends">
-                        Atlet
-                    </x-sidebar-link>
-
-                    <p class="mt-6 mb-2 text-xs text-gray-400 uppercase">Hasil</p>
-
-                    <x-sidebar-link route="admin.winners.*" icon="medal">
-                        Pemenang
-                    </x-sidebar-link>
-
-                    <x-sidebar-link route="admin.certificates.*" icon="certificate">
-                        Sertifikat
-                    </x-sidebar-link>
-
-                </div>
-
-                <div class="px-4 mt-6">
-                    <a href="/" class="w-full flex items-center gap-2 px-4 py-2 text-blue-400 hover:bg-blue-50 rounded-lg transition">
-                        <i class="fas fa-home"></i>
-                        Halaman Utama
-                    </a>
-                </div>
-
-                <!-- LOGOUT -->
-                <div class="px-4 mt-2">
-                    <form method="POST" action="{{ route('auth.logout') }}">
-                        @csrf
-                        <button
-                            class="w-full flex items-center gap-2 px-4 py-2 text-red-500 hover:bg-red-50 rounded-lg transition">
-                            <i class="fas fa-sign-out-alt"></i>
-                            Logout
-                        </button>
-                    </form>
-                </div>
-
-            </nav>
+                </nav>
             </aside>
         </div>
 

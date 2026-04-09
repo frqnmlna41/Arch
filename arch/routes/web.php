@@ -10,6 +10,7 @@ use App\Http\Controllers\Admin\PerguruanController;
 use App\Http\Controllers\Admin\SportController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\WinnerController;
+use App\Http\Controllers\Admin\AccountController;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\AthleteController;
 use App\Http\Controllers\EventParticipantController;
@@ -151,12 +152,21 @@ Route::prefix('admin')
 
         // Testing route untuk dashboard perguruan (sementara)
         Route::get('dashboard-perguruan', function () {
-            return view('dashboard.perguruan');
+return view('dashboard.perguruan');
         })->name('dashboard.perguruan');
         Route::get('dashboard-perguruan/add-athlete', function () {
             return view('admin.athletes.create');
         })->name('create.athlete');
-    });
+
+        // Coach Management
+        // Route::resource('coaches', AccountController::class)->parameters(['coaches' => 'user']);
+        // Route::patch('coaches/{user}/verify', [AccountController::class, 'verify'])->name('coaches.verify');
+        // Route::patch('coaches/{user}/reject', [AccountController::class, 'reject'])->name('coaches.reject');
+        Route::resource('coaches', AccountController::class)->parameters(['coaches' => 'user']);
+        Route::patch('coaches/{user}/verify', [AccountController::class, 'verify'])->name('coaches.verify');
+        Route::patch('coaches/{user}/reject', [AccountController::class, 'reject'])->name('coaches.reject');
+        });
+
 
     Route::prefix('perguruan')
         ->name('perguruan.')

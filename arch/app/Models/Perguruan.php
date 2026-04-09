@@ -14,7 +14,7 @@ class Perguruan extends Model
 
     // ── Fillable ─────────────────────────────────────────
     protected $fillable = [
-        'user_id',
+        // 'user_id',
         'name',
         'slug',
         'address',

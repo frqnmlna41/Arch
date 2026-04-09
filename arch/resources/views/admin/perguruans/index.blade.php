@@ -32,34 +32,34 @@
                         $user->perguruan?->name ?? 'Not set',
                         $user->created_at->format('d M Y H:i'),
                         '
-                                    <div class="btn-group" role="group">
-                                        <button class="btn btn-sm btn-success verify-perguruan"
-                                                data-id="' .
+                                                <div class="btn-group" role="group">
+                                                    <button class="btn btn-sm btn-success verify-perguruan"
+                                                            data-id="' .
                         $user->id .
                         '"
-                                                data-name="' .
+                                                            data-name="' .
                         htmlspecialchars($user->name) .
                         '"
-                                                title="Verify">
-                                            <i class="fas fa-check"></i>
-                                        </button>
-                                        <button class="btn btn-sm btn-danger reject-perguruan"
-                                                data-id="' .
+                                                            title="Verify">
+                                                        <i class="fas fa-check"></i>
+                                                    </button>
+                                                    <button class="btn btn-sm btn-danger reject-perguruan"
+                                                            data-id="' .
                         $user->id .
                         '"
-                                                data-name="' .
+                                                            data-name="' .
                         htmlspecialchars($user->name) .
                         '"
-                                                title="Reject">
-                                            <i class="fas fa-times"></i>
-                                        </button>
-                                        <a href="' .
+                                                            title="Reject">
+                                                        <i class="fas fa-times"></i>
+                                                    </button>
+                                                    <a href="' .
                         route('admin.perguruans.show', $user) .
                         '" class="btn btn-sm btn-info" title="View">
-                                            <i class="fas fa-eye"></i>
-                                        </a>
-                                    </div>
-                                ',
+                                                        <i class="fas fa-eye"></i>
+                                                    </a>
+                                                </div>
+                                            ',
                     ];
                 }),
             ])
@@ -74,27 +74,27 @@
         'id' => 'verifyModal',
         'title' => 'Verify Perguruan',
         'body' => '
-            <form id="verifyForm">
-                <input type="hidden" name="id" id="verifyId">
-                <p>Approve <strong id="verifyName"></strong> registration?</p>
-                <div class="mb-3">
-                    <label class="form-label">Perguruan Name</label>
-                    <input type="text" class="form-control" name="perguruan_name" id="perguruanName" required>
-                </div>
-                <div class="mb-3">
-                    <label class="form-label">Address</label>
-                    <textarea class="form-control" name="address" rows="3"></textarea>
-                </div>
-                <div class="mb-3">
-                    <label class="form-label">Phone</label>
-                    <input type="tel" class="form-control" name="phone">
-                </div>
-            </form>
-        ',
+                <form id="verifyForm">
+                    <input type="hidden" name="id" id="verifyId">
+                    <p>Approve <strong id="verifyName"></strong> registration?</p>
+                    <div class="mb-3">
+                        <label class="form-label">Perguruan Name</label>
+                        <input type="text" class="form-control" name="name" id="perguruanName" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Address</label>
+                        <textarea class="form-control" name="address" rows="3"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Phone</label>
+                        <input type="tel" class="form-control" name="phone">
+                    </div>
+                </form>
+            ',
         'footer' => '
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-            <button type="button" class="btn btn-success" onclick="verifyPerguruan()">Verify</button>
-        ',
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-success" onclick="verifyPerguruan()">Verify</button>
+            ',
     ])
 
     <script>

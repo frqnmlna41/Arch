@@ -28,6 +28,7 @@ class DashboardController extends Controller
         $stats = [
             'totalPerguruan' => User::role('perguruan')->active()->count(),
             'pendingPerguruan' => User::role('perguruan')->pending()->count(),
+            'pendingCoaches' => User::role('coach')->pending()->count(),
             'totalAthletes' => Athlete::active()->count(),
             'totalEvents' => Event::published()->count(),
             'totalSports' => Sport::active()->count(),

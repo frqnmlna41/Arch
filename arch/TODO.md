@@ -1,12 +1,62 @@
-# Dashboard Implementation Tracker
+:# TODO: Fix Verify/Reject Account Features
 
-## Approved Plan Steps (from analysis):
+Status: 🚀 In Progress (BLACKBOXAI)
 
-- [x] Step 1: Create/update DashboardController.php with comprehensive stats queries (counts for all models, recent data, chart prep data)
-- [x] Step 2: Update routes/web.php - change /admin.dashboard closure to use DashboardController@index
-- [x] Step 3: Update resources/views/dashboard/admin.blade.php - replace hardcoded queries with controller-passed variables, add new stat cards
-- [ ] Step 4: (Optional) Update dashboard.perguruan.blade.php similarly for consistency
-- [x] Step 5: php artisan route:clear & php artisan route:cache
-- [ ] Step 6: Test login as admin, verify dashboard loads with all data
-- [ ] Step 7: Update TODO_DASHBOARD.md as completed
-- [ ] Step 8: Complete task with attempt_completion
+## Plan Steps (Priority Order)
+
+### ✅ 1. Create TODO.md [COMPLETED]
+
+- Track progress
+
+### ✅ 2. Fix Registration Flow (AuthController)
+
+- Removed premature role assignment
+- Explicit pending status + linked perguruan_id
+
+### ✅ 3. Clean/Fix PerguruanController
+
+- Removed duplicate methods (listActive/update fixed)
+- Updated verify(): Edit existing draft Perguruan (no unique validation conflict)
+- Fixed reject() logging comment
+- Added AuthorizesRequests trait
+- JS form field name="name" (view fix)
+
+- Remove duplicate/broken code in listActive()
+- Fix return statements
+
+### ⏳ 4. Improve Validation Handling
+
+- Handle duplicate perguruan_name gracefully
+- Make fields more flexible
+
+### ⏳ 5. Test JS Frontend
+
+- Ensure form data matches controller expectations
+- Verify AJAX success/error handling
+
+### ⏳ 6. Add Status Notifications (Optional)
+
+- Email on verify/reject
+
+### ⏳ 7. Full End-to-End Test
+
+```
+php artisan route:clear
+php artisan serve
+1. Register new perguruan
+2. Admin login → verify/reject
+3. Test login (active=success, pending=fail)
+```
+
+### ⏳ 8. Update TODO_VERIFY_FIX.md
+
+- Mark as ✅ FIXED
+
+## Commands to Run After Fixes
+
+```
+php artisan route:clear
+php artisan config:clear
+php artisan cache:clear
+php artisan optimize
+```

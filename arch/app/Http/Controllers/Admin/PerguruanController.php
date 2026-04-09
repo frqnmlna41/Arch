@@ -10,17 +10,12 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Support\Facades\Storage;
 
 class PerguruanController extends Controller
 {
-    // public function __construct()
-    // {
-    //     $this->middleware('auth:sanctum');
-    //     $this->middleware('role:admin');
-    //     $this->middleware('permission:manage perguruans');
-    // }
-
+    use AuthorizesRequests;
     /**
      * Display list of pending perguruan registrations
      */
@@ -32,8 +27,8 @@ class PerguruanController extends Controller
 
         $perguruans = $query->when($request->search, function ($q, $search) {
             return $q->where(function ($query) use ($search) {
-                $query->where('name', 'like', "%{$search}%")
-                      ->orWhere('email', 'like', "%{$search}%");
+                $query->where('name', 'like', "%{$search}%" )
+                      ->orWhere('email', 'like', "%{$search}%" );
             });
         })->latest('created_at')->paginate(15);
 
@@ -56,68 +51,6 @@ class PerguruanController extends Controller
         return view('admin.perguruans.show', compact('user'));
     }
 
-    // public function index(Request $request): JsonResponse
-    // {
-    //     $query = User::with(['perguruan', 'roles'])
-    //         ->role('perguruan')
-    //         ->where('status', 'pending')
-    //         ->select('id', 'name', 'email', 'phone', 'status', 'created_at');
-
-    //     $perguruans = $query->when($request->search, function ($q, $search) {
-    //         return $q->where('name', 'like', "%{$search}%")
-    //                  ->orWhere('email', 'like', "%{$search}%");
-    //     })->latest('created_at')->paginate(15);
-
-    //     return response()->json([
-    //         'status' => 'success',
-    //         'data' => $perguruans->through(function ($user) {
-    //             return [
-    //                 'id' => $user->id,
-    //                 'name' => $user->name,
-    //                 'email' => $user->email,
-    //                 'phone' => $user->phone ?? '-',
-    //                 'perguruan_name' => $user->perguruan?->name ?? 'Not set',
-    //                 'registered_at' => $user->created_at->format('d M Y H:i'),
-    //                 'roles' => $user->roles->pluck('name'),
-    //             ];
-    //         }),
-    //         'meta' => [
-    //             'current_page' => $perguruans->currentPage(),
-    //             'last_page' => $perguruans->lastPage(),
-    //             'per_page' => $perguruans->perPage(),
-    //             'total' => $perguruans->total(),
-    //         ]
-    //     ]);
-    // }
-
-    // public function show(User $user): JsonResponse
-    // {
-    //     $this->authorize('view', $user);
-
-    //     if (!$user->hasRole('perguruan')) {
-    //         return response()->json(['status' => 'error', 'message' => 'Not a perguruan user'], 404);
-    //     }
-
-    //     $user->load(['perguruan', 'roles', 'athletes:id,name,perguruan_id,is_active,weight,gender,birth_date']);
-
-    //     return response()->json([
-    //         'status' => 'success',
-    //         'data' => [
-    //             'user' => $user,
-    //             'athletes' => $user->athletes->map(function ($athlete) {
-    //                 return [
-    //                     'id' => $athlete->id,
-    //                     'name' => $athlete->name,
-    //                     'gender' => $athlete->gender,
-    //                     'age' => $athlete->age,
-    //                     'weight' => $athlete->weight,
-    //                     'is_active' => $athlete->is_active,
-    //                 ];
-    //             })
-    //         ]
-    //     ]);
-    // }
-
     /**
      * Verify and activate perguruan registration
      */
@@ -132,33 +65,44 @@ class PerguruanController extends Controller
             ], 422);
         }
 
+        // Update existing draft perguruan (created during registration)
+        $perguruan = $user->perguruan;
+        if (!$perguruan) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'No draft perguruan found.',
+            ], 422);
+        }
+
         $validated = $request->validate([
-            'perguruan_name' => 'required|string|max:255|unique:perguruans,name',
+            'name' => 'required|string|max:255',
             'address' => 'nullable|string|max:500',
             'phone' => 'nullable|string|max:20',
+            'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
-        DB::transaction(function () use ($user, $validated, $request) {
-            $perguruan = Perguruan::create([
-                'name' => $validated['perguruan_name'],
-                'slug' => Str::slug($validated['perguruan_name']),
-                'address' => $validated['address'],
-                'phone' => $validated['phone'] ?? $user->phone,
-                'email' => $user->email,
-                'logo' => $request->file('logo') ? $request->file('logo')->store('perguruans', 'public') : null,
-            ]);
+        DB::transaction(function () use ($user, $validated, $request, $perguruan) {
+            if ($request->hasFile('logo')) {
+                if ($perguruan->logo) {
+                    Storage::disk('public')->delete($perguruan->logo);
+                }
+                $validated['logo'] = $request->file('logo')->store('perguruans', 'public');
+            }
+
+            $perguruan->update($validated);
 
             $user->update([
                 'status' => 'active',
-                'perguruan_id' => $perguruan->id,
             ]);
+
+            $user->assignRole('perguruan');
         });
 
         $user->fresh()->load('perguruan');
 
         return response()->json([
             'status' => 'success',
-            'message' => "Perguruan '{$validated['perguruan_name']}' activated successfully!",
+            'message' => "Perguruan '{$perguruan->name}' activated successfully!",
             'data' => $user
         ]);
     }
@@ -185,9 +129,12 @@ class PerguruanController extends Controller
             'status' => 'rejected',
         ]);
 
+        // Log rejection reason (add reason column if needed, or use events)
+        // User::where('id', $user->id)->update(['rejection_reason' => $request->reason]);
+
         return response()->json([
             'status' => 'success',
-            'message' => "Registration rejected: {$request->reason}",
+            'message' => "Registration rejected: {$request->reason}"
         ]);
     }
 

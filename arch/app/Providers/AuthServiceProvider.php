@@ -6,6 +6,7 @@ use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvid
 use Illuminate\Support\Facades\Gate;
 use App\Models\User;
 use App\Models\Athlete;
+use App\Policies\UserPolicy;
 use App\Policies\PerguruanPolicy;
 use App\Policies\AthletePolicy;
 
@@ -17,7 +18,7 @@ class AuthServiceProvider extends ServiceProvider
      * @var array<class-string, class-string>
      */
     protected $policies = [
-        User::class => PerguruanPolicy::class,
+        User::class => UserPolicy::class,
         Athlete::class => AthletePolicy::class,
     ];
 

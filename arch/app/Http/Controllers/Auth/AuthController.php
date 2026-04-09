@@ -93,35 +93,32 @@ class AuthController extends Controller
         DB::beginTransaction();
         try {
             // Create the User account
-            $user = User::create([
+$user = User::create([
                 'name'     => $validated['name'],
                 'email'    => $validated['email'],
                 'password' => Hash::make($validated['password']),
+                'status'   => 'pending',  // Explicit pending status
             ]);
 
-            // Optional: If you are using spatie/laravel-permission for roles
-            // $user->assignRole('perguruan');
-
-            // Create the linked Perguruan profile (Adjust this to match your actual DB structure)
-            
             $perguruan = Perguruan::create([
-                'user_id' => $user->id,
+                // 'user_id' => $user->id,
                 'name'    => $validated['perguruan_name'],
                 'slug'    => Str::slug($validated['perguruan_name']),
                 'address' => $validated['address'],
                 'phone'   => $validated['phone'],
                 'logo'    => $logoPath,
             ]);
-            
+
 
             DB::commit();
 
             // Redirect to login with a success message
-            return redirect('/login')->with('success', 'Pendaftaran perguruan berhasil! Silakan login.');
-            
+            $user->update(['perguruan_id' => $perguruan->id]);
+            return redirect('/login')->with('success', 'Pendaftaran berhasil dikirim! Menunggu persetujuan admin.');
+
         } catch (\Exception $e) {
             DB::rollBack();
-            
+
             // Redirect back with error if something fails
             return back()->withInput()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
         }

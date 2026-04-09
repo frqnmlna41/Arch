@@ -19,7 +19,7 @@ class PerguruanPolicy
 
     public function verify(User $user, User $model): bool
     {
-        return $user->isAdmin() && $model->hasRole('perguruan') && $model->status === 'pending';
+        return $user->isAdmin() && $model->status === 'pending';
     }
 
     public function create(User $user): bool
