@@ -50,10 +50,11 @@ class AuthController extends Controller
     protected function redirectByRole($user)
     {
         return match (true) {
-            $user->hasRole('admin')   => redirect()->route('admin.dashboard'),
-            $user->hasRole('coach')   => redirect()->route('dashboard.perguruan'),
-            $user->hasRole('athlete') => redirect()->route('athlete.dashboard'),
-            default                   => redirect('/dashboard'),
+            $user->hasRole('admin')     => redirect()->route('admin.dashboard'),
+            $user->hasRole('perguruan') => redirect()->route('dashboard.perguruan'),
+            $user->hasRole('coach')     => redirect()->route('coach.dashboard'),
+            $user->hasRole('athlete')   => redirect()->route('athlete.dashboard'),
+            default                     => redirect('/dashboard'),
         };
     }
 
@@ -93,12 +94,14 @@ class AuthController extends Controller
         DB::beginTransaction();
         try {
             // Create the User account
-$user = User::create([
+            $user = User::create([
                 'name'     => $validated['name'],
                 'email'    => $validated['email'],
                 'password' => Hash::make($validated['password']),
-                'status'   => 'pending',  // Explicit pending status
+                'phone'   => $validated['phone'],
+                'status'   => 'active',
             ]);
+            $user->assignRole('coach');
 
             $perguruan = Perguruan::create([
                 // 'user_id' => $user->id,
@@ -109,11 +112,9 @@ $user = User::create([
                 'logo'    => $logoPath,
             ]);
 
+            $user->update(['perguruan_id' => $perguruan->id]);
 
             DB::commit();
-
-            // Redirect to login with a success message
-            $user->update(['perguruan_id' => $perguruan->id]);
             return redirect('/login')->with('success', 'Pendaftaran berhasil dikirim! Menunggu persetujuan admin.');
 
         } catch (\Exception $e) {

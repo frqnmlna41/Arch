@@ -51,7 +51,7 @@ class Sport extends Model
 
     /**
      * Semua kategori umur yang dimiliki sport ini.
-     * Wushu: D,C,B,A | Wing Chun: A,B,C1,C2,D1,D2,E,F
+     * Wushu: D,C,B,A | Kung fu: A,B,C1,C2,D1,D2,E,F
      */
     public function ageCategories(): HasMany
     {

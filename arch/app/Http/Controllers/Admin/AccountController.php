@@ -8,31 +8,31 @@ use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
+use Illuminate\Support\Facades\Log;
 
 class AccountController extends Controller
 {
     use AuthorizesRequests;
 
-    /**
-     * Display list of coach accounts (pending for verification)
-     */
-    public function index(Request $request): View
-    {
-        $query = User::with('roles')
-            ->role('coach')
-            ->select('id', 'name', 'email', 'phone', 'status', 'created_at');
+/**
+ * Display list of coach accounts (pending for verification)
+ */
+public function index(Request $request)
+{
+    $query = User::role('coach');
 
-        $coaches = $query->when($request->status, function ($q, $status) {
-            return $q->where('status', $status);
-        })->when($request->search, function ($q, $search) {
-            return $q->where(function ($query) use ($search) {
-                $query->where('name', 'like', "%{$search}%")
-                ->orWhere('email', 'like', "%{$search}%");
-            });
-        })->latest('created_at')->paginate(15);
-
-        return view('admin.coaches.index', compact('coaches'));
+    if ($request->search) {
+        $query->where('name', 'like', '%' . $request->search . '%');
     }
+
+    $coaches = $query->paginate(15);
+    $Coach = User::role('coach');
+    return view('admin.coaches.index', [
+        'coaches' => $coaches,
+        'activeCount' => $Coach->where('is_active', true)->count(),
+        'inactiveCount' => $Coach->where('is_active', false)->count(),
+    ]);
+}
 
     /**
      * Display coach detail (account + athletes)
@@ -58,12 +58,12 @@ class AccountController extends Controller
      */
     public function verify(Request $request, User $user): JsonResponse
     {
-        \Log::info('Verify coach attempt', ['user_id' => $user->id, 'status' => $user->status, 'actor_id' => auth()->id()]);
+        Log::info('Verify coach attempt', ['user_id' => $user->id, 'status' => $user->status, 'actor_id' => auth()->id()]);
 
         try {
             $this->authorize('verify', $user);
         } catch (\Illuminate\Auth\Access\AuthorizationException $e) {
-            \Log::warning('Coach verify policy failed', ['user_id' => $user->id, 'actor' => auth()->id(), 'error' => $e->getMessage()]);
+            Log::warning('Coach verify policy failed', ['user_id' => $user->id, 'actor' => auth()->id(), 'error' => $e->getMessage()]);
             return response()->json([
                 'status' => 'error',
                 'message' => 'Unauthorized to verify this account.',
@@ -81,10 +81,10 @@ class AccountController extends Controller
             'status' => 'active',
         ]);
 
-        $user->assignRole('coach');
+        // $user->assignRole('coach');
         $user = $user->fresh()->load('roles');
 
-        \Log::info('Coach verified successfully', ['user_id' => $user->id, 'name' => $user->name]);
+        Log::info('Coach verified successfully', ['user_id' => $user->id, 'name' => $user->name]);
 
         return response()->json([
             'status' => 'success',

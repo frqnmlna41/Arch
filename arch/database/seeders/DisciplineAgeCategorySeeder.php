@@ -78,7 +78,7 @@ class DisciplineAgeCategorySeeder extends Seeder
 
         // ── WING CHUN ─────────────────────────────────────────────
         $this->command->info('  📌 Seeding Wing Chun discipline-age mappings...');
-        $this->seedWingChun();
+        $this->seedKungfu();
 
         $total = DB::table('discipline_age_categories')->count();
         $this->command->info("  ✅ Total pivot records: {$total}");
@@ -126,12 +126,13 @@ class DisciplineAgeCategorySeeder extends Seeder
     /**
      * Seed mapping discipline → age category untuk WING CHUN.
      */
-    private function seedWingChun(): void
+    private function seedKungfu(): void
     {
-        $sport = Sport::where('name', 'Wing Chun')->firstOrFail();
+        $sport = Sport::where('name', 'Kung fu')->firstOrFail();
 
         /**
-         * Nama kategori sesuai AgeCategorySeeder (Wing Chun):
+         * Nama kategori sesuai AgeCategorySeeder (Kung fu): A, B, C1, C2, D1, D2, E, F
+         * Kategori umur untuk Wing Chun: A, B, C1, C2,
          * A, B, C1, C2, D1, D2, E, F
          */
         $allCats    = ['A', 'B', 'C1', 'C2', 'D1', 'D2', 'E', 'F'];

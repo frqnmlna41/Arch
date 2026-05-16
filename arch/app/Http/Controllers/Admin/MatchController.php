@@ -1,90 +1,85 @@
 <?php
 
 namespace App\Http\Controllers\Admin;
+
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Match\StoreMatchRequest;
-use App\Http\Requests\Match\UpdateMatchRequest;
-use App\Models\Arena;
-use App\Models\Athlete;
-use App\Models\Discipline;
-use App\Models\Event;
-use App\Models\EventParticipant;
+use App\Models\CompetitionSession;
 use App\Models\Contest;
+use App\Models\EventCategory;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
+use Illuminate\View\View;
 
-/**
- * MatchController
- *
- * php artisan make:controller Admin/MatchController --resource
- *
- * Akses: admin (manage) | coach/judge/athlete (view)
- */
 class MatchController extends Controller
 {
-    // public function __construct()
-    // {
-    //     $this->middleware('auth');
-    //     $this->middleware('role:admin')->only(['store', 'update', 'destroy', 'generate', 'assignArena', 'assignSchedule']);
-    //     $this->middleware('permission:view schedule')->only(['index', 'show']);
-    // }
     use AuthorizesRequests;
 
     // ──────────────────────────────────────────────────────────────
-    // INDEX – List semua pertandingan
+    // INDEX – List semua pertandingan berdasarkan Sesi
     // ──────────────────────────────────────────────────────────────
-
-    public function index(Request $request): JsonResponse
+    public function index(Request $request): View
     {
-        try {
-            $matches = Contest::query()
-                ->with([
-                    'event:id,name',
-                    'discipline:id,name,type,match_type',
-                    'ageCategory:id,name',
-                    'arena:id,name,location',
-                    'athlete1:id,name,club,gender',
-                    'athlete2:id,name,club,gender',
-                    'result',
-                ])
-                ->when($request->event_id,       fn ($q, $v) => $q->where('event_id', $v))
-                ->when($request->discipline_id,  fn ($q, $v) => $q->where('discipline_id', $v))
-                ->when($request->age_category_id,fn ($q, $v) => $q->where('age_category_id', $v))
-                ->when($request->arena_id,       fn ($q, $v) => $q->where('arena_id', $v))
-                ->when($request->round,          fn ($q, $v) => $q->where('round', $v))
-                ->when($request->status,         fn ($q, $v) => $q->where('status', $v))
-                ->when($request->date,           fn ($q, $v) => $q->whereDate('match_date', $v))
-                ->when($request->athlete_id,     fn ($q, $v) => $q->where('athlete1_id', $v)->orWhere('athlete2_id', $v))
-                ->orderBy('match_date')
-                ->orderBy('match_time')
-                ->paginate($request->integer('per_page', 20));
+        $query = Contest::query()
+            ->with([
+                'session.eventCategory.discipline:id,name', // Select specific columns
+                'session.eventCategory.ageCategory:id,name',
+                'session.arena:id,name',
+                'athlete:id,name,perguruan_id', // Select specific columns
+                'athlete.perguruan:id,name',
+            ]);
 
-            return response()->json(['status' => 'success', 'data' => $matches]);
-        } catch (\Exception $e) {
-            return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
+        // Filter berdasarkan Event Category
+        if ($request->filled('event_category_id')) {
+            $query->whereHas('session', function($q) use ($request) {
+                $q->where('event_category_id', $request->event_category_id);
+            });
         }
+
+        // Filter berdasarkan Session
+        if ($request->filled('competition_session_id')) {
+            $query->where('competition_session_id', $request->competition_session_id);
+        }
+
+        // Filter berdasarkan Status Contest
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        // Menggunakan join agar bisa sorting berdasarkan start_time dari session
+        // Kita cache paginasi ini khusus jika tidak ada filter untuk mengurangi load
+        $matches = $query->join('competition_sessions', 'contests.competition_session_id', '=', 'competition_sessions.id')
+            ->select('contests.*')
+            ->orderBy('competition_sessions.start_time', 'asc')
+            ->orderBy('contests.appearance_order', 'asc')
+            ->simplePaginate(50); // MENGGUNAKAN SIMPLE PAGINATE UNTUK PERFORMA
+
+        // Cache Data untuk dropdown filter & form (Cache 1 Hari, di-flush saat ada event baru)
+        $eventCategories = \Illuminate\Support\Facades\Cache::remember('admin.event_categories.dropdown', 86400, function() {
+            return EventCategory::with(['discipline:id,name', 'ageCategory:id,name'])->get(['id', 'discipline_id', 'age_category_id']);
+        });
+        
+        $sessions = \Illuminate\Support\Facades\Cache::remember('admin.competition_sessions.dropdown', 86400, function() {
+            return CompetitionSession::with(['eventCategory.discipline:id,name', 'eventCategory.ageCategory:id,name', 'arena:id,name'])
+                ->orderBy('start_time')
+                ->get(['id', 'event_category_id', 'arena_id', 'start_time', 'gender']);
+        });
+
+        return view('admin.matches.index', compact('matches', 'eventCategories', 'sessions'));
     }
 
     // ──────────────────────────────────────────────────────────────
     // SHOW
     // ──────────────────────────────────────────────────────────────
-
     public function show(Contest $match): JsonResponse
     {
         try {
-            $this->authorize('view', $match);
-
             $match->load([
-                'event:id,name,location',
-                'discipline:id,name,type,match_type',
-                'ageCategory:id,name',
-                'arena:id,name,location',
-                'athlete1',
-                'athlete2',
-                'scores.judge:id,name',
-                'result.winner:id,name',
+                'session.eventCategory.discipline',
+                'session.eventCategory.ageCategory',
+                'session.arena',
+                'athlete.perguruan',
+                'score.judge'
             ]);
 
             return response()->json(['status' => 'success', 'data' => $match]);
@@ -94,34 +89,54 @@ class MatchController extends Controller
     }
 
     // ──────────────────────────────────────────────────────────────
-    // STORE – Buat pertandingan manual
+    // GENERATE / UPDATE SCHEDULE
     // ──────────────────────────────────────────────────────────────
-
-    public function store(StoreMatchRequest $request): JsonResponse
+    // Karena session sudah meng-generate contest saat dibuat (di SessionController), 
+    // fungsi ini bisa digunakan untuk mereset/mengupdate estimasi urutan (appearance_order) jika diperlukan
+    public function generate(Request $request): JsonResponse
     {
         try {
-            $this->authorize('create', Contest::class);
+            $request->validate([
+                'competition_session_id' => ['required', 'exists:competition_sessions,id'],
+            ]);
 
-            $match = DB::transaction(fn () => Contest::create($request->validated()));
+            $session = CompetitionSession::findOrFail($request->competition_session_id);
+            $contests = Contest::where('competition_session_id', $session->id)
+                ->orderBy('appearance_order')
+                ->get();
+
+            if ($contests->isEmpty()) {
+                return response()->json([
+                    'status'  => 'error',
+                    'message' => 'Tidak ada pertandingan di sesi ini.',
+                ], 422);
+            }
+
+            // Memastikan status di-update ke scheduled
+            foreach ($contests as $contest) {
+                if ($contest->status === 'draft') {
+                    $contest->update(['status' => 'scheduled']);
+                }
+            }
 
             return response()->json([
                 'status'  => 'success',
-                'data'    => $match->load('athlete1:id,name', 'athlete2:id,name', 'arena:id,name'),
-                'message' => 'Match created successfully.',
-            ], 201);
+                'message' => "Jadwal untuk sesi ini berhasil divalidasi dan dijadwalkan.",
+            ]);
         } catch (\Exception $e) {
             return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
         }
     }
 
     // ──────────────────────────────────────────────────────────────
-    // UPDATE – Update pertandingan (status, arena, jadwal)
+    // UPDATE STATUS PERTANDINGAN
     // ──────────────────────────────────────────────────────────────
-
-    public function update(UpdateMatchRequest $request, Contest $match): JsonResponse
+    public function update(Request $request, Contest $match): JsonResponse
     {
         try {
-            $this->authorize('update', $match);
+            $request->validate([
+                'status' => 'required|in:scheduled,ongoing,completed,cancelled'
+            ]);
 
             if ($match->status === 'completed') {
                 return response()->json([
@@ -130,27 +145,20 @@ class MatchController extends Controller
                 ], 422);
             }
 
-            $match->update($request->validated());
+            $match->update(['status' => $request->status]);
 
             return response()->json([
                 'status'  => 'success',
-                'data'    => $match->fresh(['athlete1:id,name', 'athlete2:id,name', 'arena:id,name']),
-                'message' => 'Match updated.',
+                'message' => 'Match status updated.',
             ]);
         } catch (\Exception $e) {
             return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
         }
     }
 
-    // ──────────────────────────────────────────────────────────────
-    // DESTROY
-    // ──────────────────────────────────────────────────────────────
-
     public function destroy(Contest $match): JsonResponse
     {
         try {
-            $this->authorize('delete', $match);
-
             if (in_array($match->status, ['ongoing', 'completed'])) {
                 return response()->json([
                     'status'  => 'error',
@@ -158,196 +166,10 @@ class MatchController extends Controller
                 ], 422);
             }
 
-            $match->scores()->delete();
+            $match->score()->delete();
             $match->delete();
 
             return response()->json(['status' => 'success', 'message' => 'Match deleted.']);
-        } catch (\Exception $e) {
-            return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
-        }
-    }
-
-    // ──────────────────────────────────────────────────────────────
-    // GENERATE – Auto-generate bracket dari peserta terverifikasi
-    // ──────────────────────────────────────────────────────────────
-
-    /**
-     * Generate pertandingan ronde pertama untuk sebuah event + discipline.
-     * Peserta dipasangkan secara acak (shuffle).
-     * Untuk solo performance: satu peserta = satu match (athlete2 null).
-     */
-    public function generate(Request $request, Event $event): JsonResponse
-    {
-        try {
-            // $this->middleware('permission:manage matches');
-
-            $request->validate([
-                'discipline_id'   => ['required', 'exists:disciplines,id'],
-                'age_category_id' => ['required', 'exists:age_categories,id'],
-            ]);
-
-            $discipline  = Discipline::findOrFail($request->discipline_id);
-            $ageCategory = \App\Models\AgeCategory::findOrFail($request->age_category_id);
-
-            // Ambil peserta yang sudah terverifikasi
-            $participants = EventParticipant::where([
-                'event_id'        => $event->id,
-                'discipline_id'   => $discipline->id,
-                'age_category_id' => $ageCategory->id,
-                'status'          => 'verified',
-            ])->with('athlete:id,name')->get();
-
-            if ($participants->count() < 1) {
-                return response()->json([
-                    'status'  => 'error',
-                    'message' => 'No verified participants found for this discipline and age category.',
-                ], 422);
-            }
-
-            // Cek apakah sudah ada match untuk kombinasi ini
-            $existingMatches = Contest::where([
-                'event_id'        => $event->id,
-                'discipline_id'   => $discipline->id,
-                'age_category_id' => $ageCategory->id,
-            ])->exists();
-
-            if ($existingMatches) {
-                return response()->json([
-                    'status'  => 'error',
-                    'message' => 'Matches already generated for this combination.',
-                ], 422);
-            }
-
-            $athletes = $participants->pluck('athlete')->shuffle();
-            $created  = [];
-
-            DB::transaction(function () use ($event, $discipline, $ageCategory, $athletes, &$created) {
-                if ($discipline->isPerformance()) {
-                    // Solo performance: satu match per atlet, athlete2 = null
-                    foreach ($athletes as $idx => $athlete) {
-                        $created[] = Contest::create([
-                            'event_id'        => $event->id,
-                            'discipline_id'   => $discipline->id,
-                            'age_category_id' => $ageCategory->id,
-                            'athlete1_id'     => $athlete->id,
-                            'athlete2_id'     => null,
-                            'round'           => 'pool',
-                            'match_number'    => $idx + 1,
-                            'status'          => 'scheduled',
-                        ]);
-                    }
-                } else {
-                    // Duel (Sanda/Sparring): pasangkan berdua
-                    $chunks = $athletes->chunk(2);
-                    $matchNum = 1;
-                    foreach ($chunks as $pair) {
-                        $pairArr = $pair->values();
-                        $created[] = Contest::create([
-                            'event_id'        => $event->id,
-                            'discipline_id'   => $discipline->id,
-                            'age_category_id' => $ageCategory->id,
-                            'athlete1_id'     => $pairArr[0]->id,
-                            'athlete2_id'     => $pairArr[1]->id ?? null, // bye jika ganjil
-                            'round'           => 'quarter_final',
-                            'match_number'    => $matchNum++,
-                            'status'          => 'scheduled',
-                        ]);
-                    }
-                }
-            });
-
-            return response()->json([
-                'status'  => 'success',
-                'data'    => $created,
-                'message' => count($created) . " matches generated for [{$discipline->name}] [{$ageCategory->name}].",
-            ], 201);
-        } catch (\Exception $e) {
-            return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
-        }
-    }
-
-    // ──────────────────────────────────────────────────────────────
-    // ASSIGN ARENA – Set arena untuk pertandingan
-    // ──────────────────────────────────────────────────────────────
-
-    public function assignArena(Request $request, Contest $match): JsonResponse
-    {
-        try {
-            $request->validate(['arena_id' => ['required', 'exists:arenas,id']]);
-
-            $arena = Arena::findOrFail($request->arena_id);
-
-            if (! $arena->is_active) {
-                return response()->json(['status' => 'error', 'message' => 'Arena is not active.'], 422);
-            }
-
-            // Cek konflik jadwal arena (arena sama, waktu overlap)
-            if ($match->match_date && $match->match_time) {
-                $conflict = Contest::where('arena_id', $arena->id)
-                    ->whereDate('match_date', $match->match_date)
-                    ->where('match_time', $match->match_time)
-                    ->where('id', '!=', $match->id)
-                    ->exists();
-
-                if ($conflict) {
-                    return response()->json([
-                        'status'  => 'error',
-                        'message' => "Arena [{$arena->name}] is already occupied at that time.",
-                    ], 422);
-                }
-            }
-
-            $match->update(['arena_id' => $arena->id]);
-
-            return response()->json([
-                'status'  => 'success',
-                'data'    => $match->fresh('arena:id,name'),
-                'message' => "Arena [{$arena->name}] assigned to match #{$match->match_number}.",
-            ]);
-        } catch (\Exception $e) {
-            return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
-        }
-    }
-
-    // ──────────────────────────────────────────────────────────────
-    // ASSIGN SCHEDULE – Set tanggal & waktu pertandingan
-    // ──────────────────────────────────────────────────────────────
-
-    public function assignSchedule(Request $request, Contest $match): JsonResponse
-    {
-        try {
-            $request->validate([
-                'match_date' => ['required', 'date'],
-                'match_time' => ['required', 'date_format:H:i'],
-            ]);
-
-            // Cek konflik arena di slot waktu yang sama
-            if ($match->arena_id) {
-                $conflict = Contest::where('arena_id', $match->arena_id)
-                    ->whereDate('match_date', $request->match_date)
-                    ->where('match_time', $request->match_time)
-                    ->where('id', '!=', $match->id)
-                    ->where('status', '!=', 'cancelled')
-                    ->exists();
-
-                if ($conflict) {
-                    return response()->json([
-                        'status'  => 'error',
-                        'message' => 'Schedule conflict: another match is already assigned to this arena at the same time.',
-                    ], 422);
-                }
-            }
-
-            $match->update([
-                'match_date' => $request->match_date,
-                'match_time' => $request->match_time,
-            ]);
-
-            return response()->json([
-                'status'  => 'success',
-                'data'    => $match->fresh(),
-                'message' => 'Schedule assigned successfully.',
-            ]);
         } catch (\Exception $e) {
             return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
         }

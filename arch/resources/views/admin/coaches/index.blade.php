@@ -1,269 +1,236 @@
 @extends('layouts.admin')
 
-@section('title', 'Coach Accounts - Verification')
+@section('title', 'Coaches Management')
 
 @section('content')
-    <div class="space-y-6">
-        <!-- Header -->
-        <div class="flex justify-between items-center">
-            <div>
-                <h1 class="text-3xl font-bold text-gray-900">Coach Verification</h1>
-                <p class="mt-1 text-sm text-gray-500">
-                    Manage and verify coach account registrations ({{ $coaches->total() }} total)
-                </p>
+    <div class="ath-page">
+
+        {{-- HEADER --}}
+        <div class="ath-header">
+            <div class="ath-header__left">
+                <div class="ath-header__badge">COACH REGISTRY</div>
+                <h1 class="ath-header__title">Coaches<span class="ath-header__dot">.</span></h1>
+                <p class="ath-header__sub">Manage all registered coaches.</p>
+            </div>
+            <div class="ath-header__right">
+                <a href="{{ route('admin.coaches.create') }}" class="ath-btn ath-btn--primary">
+                    + Add Coach
+                </a>
             </div>
         </div>
 
-        <!-- Search & Filter -->
-        <form method="GET" class="bg-white shadow-sm border border-gray-200 rounded-lg p-6">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Search</label>
-                    <input type="text" name="search" value="{{ request('search') }}" placeholder="Name or email..."
-                        class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Status</label>
-                    <select name="status"
-                        class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                        <option value="">All Status</option>
-                        <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>Pending</option>
-                        <option value="active" {{ request('status') == 'active' ? 'selected' : '' }}>Active</option>
-                        <option value="rejected" {{ request('status') == 'rejected' ? 'selected' : '' }}>Rejected</option>
-                    </select>
-                </div>
-                <div class="flex items-end space-x-2">
-                    <button type="submit"
-                        class="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md shadow-sm hover:bg-blue-700 focus:ring-2 focus:ring-blue-500">
-                        Filter
-                    </button>
-                    @if (request('search') || request('status'))
-                        <a href="{{ route('admin.coaches.index') }}"
-                            class="px-4 py-2 text-sm text-gray-700 underline hover:text-gray-900">Clear</a>
-                    @endif
+        {{-- STATS --}}
+        <div class="ath-stats">
+            <div class="ath-stat-card ath-stat-card--blue">
+                <div class="ath-stat-card__body">
+                    <span class="ath-stat-card__label">Total Coaches</span>
+                    <span class="ath-stat-card__value">{{ $coaches->total() }}</span>
                 </div>
             </div>
-        </form>
 
-        <!-- Table -->
-        <div class="bg-white shadow-sm border border-gray-200 rounded-lg overflow-hidden">
-            <div class="overflow-x-auto">
-                <table class="min-w-full divide-y divide-gray-200">
-                    <thead class="bg-gray-50">
+            <div class="ath-stat-card ath-stat-card--green">
+                <div class="ath-stat-card__body">
+                    <span class="ath-stat-card__label">Active</span>
+                    <span class="ath-stat-card__value">{{ $activeCount }}</span>
+                </div>
+            </div>
+
+            <div class="ath-stat-card ath-stat-card--red">
+                <div class="ath-stat-card__body">
+                    <span class="ath-stat-card__label">Inactive</span>
+                    <span class="ath-stat-card__value">{{ $inactiveCount }}</span>
+                </div>
+            </div>
+        </div>
+
+        {{-- FILTER --}}
+        <div class="ath-filter-card">
+            <form method="GET" action="{{ route('admin.coaches.index') }}" class="ath-filter-form">
+                <div class="ath-filter-group">
+                    <label class="ath-filter-label">Search</label>
+                    <input type="text" name="search" class="ath-input" placeholder="Coach name..."
+                        value="{{ request('search') }}">
+                </div>
+
+                <div class="ath-filter-actions">
+                    <button class="ath-btn ath-btn--primary ath-btn--sm">Filter</button>
+                    <a href="{{ route('admin.coaches.index') }}" class="ath-btn ath-btn--ghost ath-btn--sm">Reset</a>
+                </div>
+            </form>
+        </div>
+
+        {{-- TABLE --}}
+        <div class="ath-table-card">
+            <div class="ath-table-header">
+                <span class="ath-table-header__count">
+                    Showing {{ $coaches->firstItem() }}–{{ $coaches->lastItem() }}
+                    of {{ $coaches->total() }}
+                </span>
+            </div>
+            <div class="ath-table-wrap">
+                <table class="ath-table">
+                    <thead>
                         <tr>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name
-                            </th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email
-                            </th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Phone
-                            </th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Status</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Registered</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Actions</th>
+                            <th class="ath-table__th ath-table__th--num">#</th>
+                            <th class="ath-table__th">Coach</th>
+                            <th class="ath-table__th">Email</th>
+                            <th class="ath-table__th">Phone</th>
+                            <th class="ath-table__th ath-table__th--center">Status</th>
+                            <th class="ath-table__th ath-table__th--center">Actions</th>
                         </tr>
                     </thead>
-                    <tbody class="bg-white divide-y divide-gray-200">
-                        @forelse($coaches as $coach)
-                            <tr class="hover:bg-gray-50">
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="text-sm font-medium text-gray-900">{{ $coach->name }}</div>
-                                    <div class="text-sm text-gray-500">{{ $coach->roles->pluck('name')->implode(', ') }}
+                    <tbody>
+                        @forelse($coaches as $i => $coach)
+                            <tr class="ath-table__row">
+                                <td class="ath-table__td ath-table__td--num">{{ $coaches->firstItem() + $i }}</td>
+                                {{-- <td class="ath-table__td--num">{{ $coaches->firstItem() + $i }}</td> --}}
+
+                                {{-- Athlete Info --}}
+                                <td class="ath-table__td">
+                                    <div class="ath-athlete-cell">
+
+                                        <div class="ath-avatar ath-avatar--placeholder">
+                                            {{ strtoupper(substr($coach->name, 0, 2)) }}
+                                        </div>
+
+                                        <div class="ath-athlete-cell__info">
+                                            <span class="ath-athlete-cell__name">{{ $coach->name }}</span>
+                                            @if ($coach->nik ?? null)
+                                                <span class="ath-athlete-cell__nik">{{ $coach->nik }}</span>
+                                            @endif
+                                        </div>
                                     </div>
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $coach->email }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $coach->phone ?? '-' }}
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    @php
-                                        $statusClass = match ($coach->status) {
-                                            'pending' => 'bg-yellow-100 text-yellow-800',
-                                            'active' => 'bg-green-100 text-green-800',
-                                            'rejected' => 'bg-red-100 text-red-800',
-                                            default => 'bg-gray-100 text-gray-800',
-                                        };
-                                    @endphp
-                                    <span
-                                        class="inline-flex px-2 py-1 text-xs font-semibold rounded-full {{ $statusClass }}">
-                                        {{ ucfirst($coach->status) }}
-                                    </span>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                    {{ $coach->created_at->format('d M Y') }}
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-1">
-                                    <a href="{{ route('admin.coaches.show', $coach) }}"
-                                        class="text-indigo-600 hover:text-indigo-900">View</a>
-                                    @if ($coach->status === 'pending')
-                                        <button onclick="verifyCoach({{ $coach->id }})"
-                                            class="text-green-600 hover:text-green-900 font-medium">Verify</button>
-                                        <button onclick="rejectCoach({{ $coach->id }})"
-                                            class="text-red-600 hover:text-red-900 font-medium">Reject</button>
+                                {{-- Club --}}
+                                {{-- <td class="ath-table__td">{{ $coach->club ?? '—' }}</td> --}}
+                                <td class="ath-table__td">{{ $coach->email ?? '—' }}</td>
+                                <td class="ath-table__td">{{ $coach->phone ?? '—' }}</td>
+
+                                {{-- Age --}}
+                                {{-- <td class="ath-table__td ath-table__td--center">
+                                    {{ $athlete->age ?? '—' }}
+                                </td> --}}
+
+                                {{-- Events --}}
+                                {{-- <td class="ath-table__td ath-table__td--center">
+                                    <span class="ath-badge">{{ $athlete->event_participants_count }}</span>
+                                </td> --}}
+
+                                {{-- Status --}}
+                                <td class="ath-table__td ath-table__td--center">
+                                    @if ($coach->is_active)
+                                        <span class="ath-status ath-status--active">Active</span>
+                                    @else
+                                        <span class="ath-status ath-status--inactive">Inactive</span>
                                     @endif
+                                </td>
+
+                                {{-- Actions --}}
+                                <td class="ath-table__td ath-table__td--center">
+                                    <div class="ath-actions">
+                                        <a href="{{ route('admin.coaches.show', $coach) }}"
+                                            class="ath-action-btn ath-action-btn--view" title="View Detail">
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+                                                stroke="currentColor" stroke-width="2">
+                                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                                                <circle cx="12" cy="12" r="3" />
+                                            </svg>
+                                        </a>
+                                        <a href="{{ route('admin.coaches.edit', $coach) }}"
+                                            class="ath-action-btn ath-action-btn--edit" title="Edit">
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+                                                stroke="currentColor" stroke-width="2">
+                                                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                                                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+                                            </svg>
+                                        </a>
+                                        <form method="POST" action="{{ route('admin.coaches.destroy', $coach) }}"
+                                            onsubmit="return confirmDelete('{{ addslashes($coach->name) }}')"
+                                            style="display:inline">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="ath-action-btn ath-action-btn--delete"
+                                                title="Delete">
+                                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+                                                    stroke="currentColor" stroke-width="2">
+                                                    <polyline points="3 6 5 6 21 6" />
+                                                    <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
+                                                    <path d="M10 11v6" />
+                                                    <path d="M14 11v6" />
+                                                    <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2" />
+                                                </svg>
+                                            </button>
+                                        </form>
+                                    </div>
                                 </td>
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="6" class="px-6 py-12 text-center text-gray-500">
-                                    No coach accounts found.
+                                <td colspan="9" class="ath-table__empty">
+                                    <div class="ath-empty-state">
+                                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none"
+                                            stroke="currentColor" stroke-width="1.5">
+                                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                                            <circle cx="9" cy="7" r="4" />
+                                            <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+                                            <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                                        </svg>
+                                        <p>No coaches found.</p>
+                                        <a href="{{ route('admin.coaches.create') }}"
+                                            class="ath-btn ath-btn--primary ath-btn--sm">Add First Coach</a>
+                                    </div>
                                 </td>
                             </tr>
                         @endforelse
                     </tbody>
+                    {{-- <tbody>
+                        @forelse($coaches as $i => $coach)
+                            <tr class="ath-table__row">
+                                <td class="ath-table__td--num">{{ $coaches->firstItem() + $i }}</td>
+
+                                <td class="ath-table__td">{{ $coach->name }}</td>
+                                <td>{{ $coach->email }}</td>
+                                <td>{{ $coach->phone ?? '-' }}</td>
+
+                                <td class="text-center">
+                                    @if ($coach->is_active)
+                                        <span class="ath-status ath-status--active">Active</span>
+                                    @else
+                                        <span class="ath-status ath-status--inactive">Inactive</span>
+                                    @endif
+                                </td>
+
+                                <td class="text-center">
+                                    <a href="{{ route('admin.coaches.show', $coach) }}" class="ath-action-btn">View</a>
+                                    <a href="{{ route('admin.coaches.edit', $coach) }}" class="ath-action-btn">Edit</a>
+
+                                    <form method="POST" action="{{ route('admin.coaches.destroy', $coach) }}"
+                                        style="display:inline">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button class="ath-action-btn ath-action-btn--delete">
+                                            Delete
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="6" class="ath-table__empty">
+                                    No coaches found.
+                                </td>
+                            </tr>
+                        @endforelse
+                    </tbody> --}}
                 </table>
             </div>
-            <!-- Pagination -->
-            <div class="px-6 py-4 bg-gray-50 border-t">
-                {{ $coaches->appends(request()->query())->links() }}
+
+
+            {{-- PAGINATION --}}
+            <div class="ath-pagination">
+                {{ $coaches->links() }}
             </div>
         </div>
+
     </div>
-
-    <!-- Verify Modal -->
-    <div id="verifyModal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center p-4 z-50">
-        <div class="bg-white rounded-lg p-6 max-w-md w-full mx-4">
-            <h3 class="text-lg font-medium text-gray-900 mb-4">Verify Coach Account</h3>
-            <form id="verifyForm">
-                <input type="hidden" name="user_id" id="verifyUserId">
-                <div class="mb-4">
-                    <p class="text-sm text-gray-600 mb-4">Are you sure you want to verify this coach account?</p>
-                </div>
-                <div class="flex justify-end space-x-3">
-                    <button type="button" onclick="closeModal('verifyModal')"
-                        class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50">Cancel</button>
-                    <button type="submit"
-                        class="px-4 py-2 text-sm font-medium text-white bg-green-600 border border-transparent rounded-md shadow-sm hover:bg-green-700">Verify</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- Reject Modal -->
-    <div id="rejectModal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center p-4 z-50">
-        <div class="bg-white rounded-lg p-6 max-w-md w-full mx-4">
-            <h3 class="text-lg font-medium text-gray-900 mb-4">Reject Coach Account</h3>
-            <form id="rejectForm">
-                <input type="hidden" name="user_id" id="rejectUserId">
-                <div class="mb-4">
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Reason (required)</label>
-                    <textarea name="reason" rows="3" required
-                        class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-red-500 focus:border-red-500"
-                        placeholder="Explain why this registration is rejected..."></textarea>
-                </div>
-                <div class="flex justify-end space-x-3">
-                    <button type="button" onclick="closeModal('rejectModal')"
-                        class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50">Cancel</button>
-                    <button type="submit"
-                        class="px-4 py-2 text-sm font-medium text-white bg-red-600 border border-transparent rounded-md shadow-sm hover:bg-red-700">Reject</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <script>
-        function verifyCoach(userId) {
-            document.getElementById('verifyUserId').value = userId;
-            document.getElementById('verifyModal').classList.remove('hidden');
-        }
-
-        function rejectCoach(userId) {
-            document.getElementById('rejectUserId').value = userId;
-            document.getElementById('rejectModal').classList.remove('hidden');
-        }
-
-        function closeModal(modalId) {
-            document.getElementById(modalId).classList.add('hidden');
-        }
-
-        function showToast(message, type = 'success') {
-            const toast = document.createElement('div');
-            toast.className =
-                `fixed top-4 right-4 z-50 p-4 rounded-lg shadow-lg text-white ${type === 'success' ? 'bg-green-500' : 'bg-red-500'}`;
-            toast.textContent = message;
-            document.body.appendChild(toast);
-            setTimeout(() => toast.remove(), 3000);
-        }
-
-        async function sendRequest(url, body) {
-            const response = await fetch(url, {
-                method: 'POST', // ← pakai POST
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-                    'X-HTTP-Method-Override': 'PATCH' // ← override ke PATCH
-                },
-                body: JSON.stringify({
-                    ...body,
-                    _method: 'PATCH' // ← Laravel method spoofing
-                })
-            });
-
-            if (response.status === 419) {
-                showToast('Session expired. Refreshing...', 'error');
-                setTimeout(() => location.reload(), 1500);
-                return null;
-            }
-
-            if (response.status === 403) {
-                showToast('Akses ditolak.', 'error');
-                return null;
-            }
-
-            return response.json();
-        }
-
-        // Verify
-        document.getElementById('verifyForm')?.addEventListener('submit', async function(e) {
-            e.preventDefault();
-            const userId = document.getElementById('verifyUserId').value;
-            const url = `{{ route('admin.coaches.verify', ':user') }}`.replace(':user', userId);
-
-            const btn = this.querySelector('button[type="submit"]');
-            btn.disabled = true;
-            btn.textContent = 'Processing...';
-
-            const data = await sendRequest(url, {
-                user_id: userId
-            });
-
-            if (data?.status === 'success') {
-                showToast(data.message, 'success');
-                setTimeout(() => location.reload(), 1500);
-            } else if (data) {
-                showToast(data.message || 'Terjadi kesalahan.', 'error');
-                btn.disabled = false;
-                btn.textContent = 'Verify';
-            }
-        });
-
-        // Reject
-        document.getElementById('rejectForm')?.addEventListener('submit', async function(e) {
-            e.preventDefault();
-            const userId = document.getElementById('rejectUserId').value;
-            const reason = this.querySelector('textarea[name="reason"]').value;
-            const url = `{{ route('admin.coaches.reject', ':user') }}`.replace(':user', userId);
-
-            const btn = this.querySelector('button[type="submit"]');
-            btn.disabled = true;
-            btn.textContent = 'Processing...';
-
-            const data = await sendRequest(url, {
-                user_id: userId,
-                reason: reason
-            });
-
-            if (data?.status === 'success') {
-                showToast(data.message, 'success');
-                setTimeout(() => location.reload(), 1500);
-            } else if (data) {
-                showToast(data.message || 'Terjadi kesalahan.', 'error');
-                btn.disabled = false;
-                btn.textContent = 'Reject';
-            }
-        });
-    </script>
-
 @endsection

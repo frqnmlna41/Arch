@@ -53,6 +53,10 @@
 
                         <p class="mt-6 mb-2 text-xs text-gray-400 uppercase">Master</p>
 
+                        <x-sidebar-link route="admin.invoices.*" icon="file-invoice">
+                            Keuangan
+                        </x-sidebar-link>
+
                         <x-sidebar-link route="admin.sports.*" icon="trophy">
                             Olahraga
                         </x-sidebar-link>
@@ -65,6 +69,10 @@
                             Kategori Umur
                         </x-sidebar-link>
 
+                        <x-sidebar-link route="admin.contests.*" icon="list">
+                            Penilaian
+                        </x-sidebar-link>
+
                         <x-sidebar-link route="admin.arenas.*" icon="map-marker-alt">
                             Arena
                         </x-sidebar-link>
@@ -75,9 +83,13 @@
                             Event
                         </x-sidebar-link>
 
-                        <x-sidebar-link route="admin.matches.*" icon="fist-raised">
+                        <x-sidebar-link route="admin.sessions.*" icon="fist-raised">
                             Pertandingan
                         </x-sidebar-link>
+
+                         <x-sidebar-link route="admin.matches.*" icon="th-list">
+                            Jadwal Tanding
+                        </x-sidebar-link> 
 
                         <p class="mt-6 mb-2 text-xs text-gray-400 uppercase">User</p>
 
@@ -89,6 +101,9 @@
                             Perguruan
                         </x-sidebar-link>
 
+                        {{-- <x-sidebar-link route="admin.athlete.*" icon="user-friends">
+                            Atlets
+                        </x-sidebar-link> --}}
                         <x-sidebar-link route="admin.athletes.*" icon="user-friends">
                             Atlet
                         </x-sidebar-link>

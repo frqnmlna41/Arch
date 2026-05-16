@@ -9,7 +9,7 @@ use App\Models\Sport;
 /**
  * DisciplineSeeder
  *
- * Membuat semua discipline untuk Wushu dan Wing Chun.
+ * Membuat semua discipline untuk Wushu dan Kung fu.
  *
  * Artisan command:
  *   php artisan make:seeder DisciplineSeeder
@@ -34,16 +34,16 @@ use App\Models\Sport;
  *   Taiji Jian, Qiang Shu, Gun Shu, Nan Gun, Chu Ji Nan Gun
  *
  * ─────────────────────────────────────
- * WING CHUN KUNGFU (semua match_type = performance):
+ * Kung fu KUNGFU (semua match_type = performance):
  *
  * EMPTY HAND:
- *   Taiji Quan, Wing Chun - Siu Nim Tau, Wing Chun - Cham Kiu,
- *   Wing Chun - Biu Jee, Xingyi Quan, Bagua Zhang, Baji Quan,
+ *   Taiji Quan, Kung fu - Siu Nim Tau, Kung fu - Cham Kiu,
+ *   Kung fu - Biu Jee, Xingyi Quan, Bagua Zhang, Baji Quan,
  *   Wuzu Quan - Sam Cien, Wuzu Quan - Ngo Ho Cien,
  *   Wuzu Quan - Ji Sip Kuen, Jurus Perguruan
  *
  * WEAPON:
- *   Wing Chun - Bart Jarm Dao, Wing Chun - Lok Dim Boon Gwan,
+ *   Kung fu - Bart Jarm Dao, Kung fu - Lok Dim Boon Gwan,
  *   Er Jie Gun, Shuang Er Jie Gun
  * ─────────────────────────────────────
  */
@@ -162,37 +162,37 @@ class DisciplineSeeder extends Seeder
         ],
 
         // ══════════════════════════════════════════════════
-        // WING CHUN
+        // Kung fu
         // ══════════════════════════════════════════════════
-        'Wing Chun' => [
+        'Kung fu' => [
 
             // ── Empty Hand ────────────────────────────────
             [
                 'name'       => 'Taiji Quan',
                 'type'       => 'empty_hand',
                 'match_type' => 'performance',
-                'description'=> 'Jurus Taiji Quan yang dipertandingkan dalam konteks Wing Chun, '
+                'description'=> 'Jurus Taiji Quan yang dipertandingkan dalam konteks Kung fu, '
                               . 'menekankan aliran energi dan keseimbangan.',
             ],
             [
-                'name'       => 'Wing Chun - Siu Nim Tau',
+                'name'       => 'Wing chun - Siu Nim Tau',
                 'type'       => 'empty_hand',
                 'match_type' => 'performance',
-                'description'=> 'Form pertama Wing Chun, "Ide Kecil". Fondasi semua teknik '
-                              . 'Wing Chun yang menekankan posisi pusat dan struktur tangan.',
+                'description'=> 'Form pertama Kung fu, "Ide Kecil". Fondasi semua teknik '
+                              . 'Kung fu yang menekankan posisi pusat dan struktur tangan.',
             ],
             [
-                'name'       => 'Wing Chun - Cham Kiu',
+                'name'       => 'Wing chun - Cham Kiu',
                 'type'       => 'empty_hand',
                 'match_type' => 'performance',
-                'description'=> 'Form kedua Wing Chun, "Menjembatani Tangan". '
+                'description'=> 'Form kedua Kung fu, "Menjembatani Tangan". '
                               . 'Memperkenalkan perputaran pinggul, tendangan, dan pergeseran kaki.',
             ],
             [
-                'name'       => 'Wing Chun - Biu Jee',
+                'name'       => 'Wing chun - Biu Jee',
                 'type'       => 'empty_hand',
                 'match_type' => 'performance',
-                'description'=> 'Form ketiga Wing Chun, "Jari yang Melesat". '
+                'description'=> 'Form ketiga Kung fu, "Jari yang Melesat". '
                               . 'Teknik lanjutan untuk pemulihan posisi dan serangan ekstra.',
             ],
             [
@@ -247,18 +247,18 @@ class DisciplineSeeder extends Seeder
 
             // ── Weapon ────────────────────────────────────
             [
-                'name'       => 'Wing Chun - Bart Jarm Dao',
+                'name'       => 'Kung fu - Bart Jarm Dao',
                 'type'       => 'weapon',
                 'match_type' => 'performance',
-                'description'=> 'Jurus "Delapan Pisau Pemenggal" Wing Chun menggunakan '
+                'description'=> 'Jurus "Delapan Pisau Pemenggal" Kung fu menggunakan '
                               . 'sepasang pedang pendek (butterfly swords).',
             ],
             [
-                'name'       => 'Wing Chun - Lok Dim Boon Gwan',
+                'name'       => 'Kung fu - Lok Dim Boon Gwan',
                 'type'       => 'weapon',
                 'match_type' => 'performance',
-                'description'=> 'Jurus "Tongkat Enam Setengah Titik" Wing Chun. '
-                              . 'Satu-satunya form senjata tongkat panjang dalam Wing Chun.',
+                'description'=> 'Jurus "Tongkat Enam Setengah Titik" Kung fu. '
+                              . 'Satu-satunya form senjata tongkat panjang dalam Kung fu.',
             ],
             [
                 'name'       => 'Er Jie Gun',

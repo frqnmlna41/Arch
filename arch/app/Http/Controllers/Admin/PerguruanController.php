@@ -21,16 +21,17 @@ class PerguruanController extends Controller
      */
     public function index(Request $request): View
     {
-        $query = User::with(['perguruan', 'roles'])
-            ->role('perguruan')
-            ->where('status', 'pending');
-
-        $perguruans = $query->when($request->search, function ($q, $search) {
-            return $q->where(function ($query) use ($search) {
-                $query->where('name', 'like', "%{$search}%" )
-                      ->orWhere('email', 'like', "%{$search}%" );
-            });
-        })->latest('created_at')->paginate(15);
+        $perguruans = User::with(['perguruan', 'roles'])
+            ->role('coach')
+            ->whereIn('status', ['pending', 'active']) // ← semua status
+            ->when($request->search, function ($q, $search) {
+                return $q->where(function ($query) use ($search) {
+                    $query->where('name', 'like', "%{$search}%")
+                        ->orWhere('email', 'like', "%{$search}%");
+                });
+            })
+            ->latest('created_at')
+            ->paginate(15);
 
         return view('admin.perguruans.index', compact('perguruans'));
     }
@@ -185,5 +186,24 @@ class PerguruanController extends Controller
             'status' => 'success',
             'data' => $perguruans
         ]);
+    }
+
+    /**
+     * Display list of ACTIVE verified perguruans
+     */
+    public function active(Request $request): View
+    {
+        $query = User::with(['perguruan', 'roles'])
+            ->role('perguruan')
+            ->where('status', 'active');
+
+        $perguruans = $query->when($request->search, function ($q, $search) {
+            return $q->where(function ($query) use ($search) {
+                $query->where('name', 'like', "%{$search}%")
+                      ->orWhere('email', 'like', "%{$search}%");
+            });
+        })->latest('updated_at')->paginate(15);
+
+        return view('admin.perguruans.active', compact('perguruans'));
     }
 }

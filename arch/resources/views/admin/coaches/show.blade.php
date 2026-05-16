@@ -11,12 +11,14 @@
                 <p class="mt-1 text-sm text-gray-500">Coach Account #{{ $user->id }}</p>
             </div>
             <div class="text-right">
-                @php$statusClass = match ($user->status) {
-                                            'pending' => 'bg-yellow-100 text-yellow-800',
-                                            'active' => 'bg-green-100 text-green-800',
-                                            'rejected' => 'bg-red-100 text-red-800',
-                                            default => 'bg-gray-100 text-gray-800',
-                                }; @endphp ?>
+                @php
+                    $statusClass = match ($user->status) {
+                        'pending' => 'bg-yellow-100 text-yellow-800',
+                        'active' => 'bg-green-100 text-green-800',
+                        'rejected' => 'bg-red-100 text-red-800',
+                        default => 'bg-gray-100 text-gray-800',
+                    };
+                @endphp
                 <span class="inline-flex px-3 py-1 text-sm font-semibold rounded-full {{ $user->status_class }}">
                     {{ ucfirst($user->status) }}
                 </span>

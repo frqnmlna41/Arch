@@ -14,10 +14,14 @@
                 <p class="text-gray-600 mt-1">Kelola seluruh sistem kejuaraan</p>
             </div>
             <div class="flex space-x-3">
-                <a href="{{ route('admin.perguruans.index') }}" class="btn-primary py-2 px-6">
+                <a href="{{ route('admin.perguruans.index') }}" class="btn btn-primary py-2 px-6">
                     <i class="fas fa-school mr-2"></i>
                     Kelola Perguruan
                 </a>
+                {{-- <a href="{{ route('admin.perguruans.active') }}" class="btn btn-success py-2 px-6 ms-2">
+                    <i class="fas fa-check-circle mr-2"></i>
+                    Active Perguruan
+                </a> --}}
 
             </div>
         </div>
@@ -127,7 +131,7 @@
             <div class="bg-white p-6 rounded-xl shadow-lg">
                 <h3 class="text-lg font-semibold text-gray-900 mb-4">
                     <i class="fas fa-clock mr-2 text-yellow-500"></i>
-                    Pending Perguruan ({{ $stats['pendingPerguruan'] }})
+                    Pending ({{ $stats['pendingPerguruan'] }}) | Active: {{ $stats['totalPerguruan'] ?? 0 }}
                 </h3>
                 @if ($pendingPerguruans->count())
                     <div class="space-y-3">
@@ -144,7 +148,7 @@
                             </div>
                         @endforeach
                     </div>
-                    <a href="{{ route('admin.perguruan.index') }}"
+                    <a href="{{ route('admin.perguruans.index') }}"
                         class="mt-4 block text-blue-600 hover:text-blue-700 font-medium">
                         Lihat Semua <i class="fas fa-arrow-right ml-1"></i>
                     </a>

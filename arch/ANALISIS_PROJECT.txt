@@ -1,0 +1,463 @@
+================================================================================
+                    ANALISIS PROJECT: ARCH - TOURNAMENT CMS
+                    Tanggal: 12 Mei 2026
+================================================================================
+
+1. INFORMASI UMUM PROJECT
+================================================================================
+Nama Project    : Arch (Tournament CMS)
+Framework       : Laravel 12.x (PHP 8.2+)
+Frontend        : Blade Templates + Vite + TailwindCSS
+Database        : SQLite (development)
+Auth            : Laravel Sanctum + Jetstream
+Role Management : Spatie Laravel Permission
+PDF Generator   : Barryvdh Laravel DomPDF
+Tipe Aplikasi   : Sistem Manajemen Turnamen Beladiri (Wushu/Kung Fu)
+
+Deskripsi:
+  Aplikasi web untuk mengelola turnamen beladiri yang mencakup pendaftaran
+  atlet, pengelolaan event/pertandingan, penilaian (scoring), penentuan
+  pemenang, dan pembuatan sertifikat. Sistem mendukung dua jenis pertandingan:
+  Taolu (performance/solo) dan Sanda (sparring/duel).
+
+
+2. ARSITEKTUR & STRUKTUR FOLDER
+================================================================================
+
+arch/
+├── app/
+│   ├── Http/
+│   │   ├── Controllers/
+│   │   │   ├── Admin/          → 18 controller (panel admin)
+│   │   │   ├── Auth/           → AuthController (login/register)
+│   │   │   ├── Coach/          → 6 controller (panel pelatih)
+│   │   │   └── Operator/       → 1 controller (input nilai)
+│   │   ├── Kernel.php
+│   │   └── Requests/
+│   ├── Models/                 → 22 model Eloquent
+│   ├── Policies/
+│   ├── Providers/
+│   ├── Rules/
+│   └── Services/               → 5 service class
+├── database/
+│   ├── migrations/             → 30 migration files
+│   ├── seeders/                → 23 seeder files
+│   └── database.sqlite
+├── resources/views/
+│   ├── admin/                  → 15 subdirektori view admin
+│   ├── auth/                   → halaman login/register
+│   ├── coach/                  → halaman panel pelatih
+│   ├── components/
+│   ├── dashboard/
+│   ├── layouts/
+│   └── operator/
+├── routes/
+│   └── web.php                 → 228 baris routing
+└── config/, public/, storage/, tests/, vendor/
+
+
+3. DAFTAR MODEL (22 Model)
+================================================================================
+
+ No  Model                 Tabel                        Deskripsi
+ --- --------------------- ---------------------------- ----------------------------
+  1  User                  users                        Pengguna sistem (admin/coach/judge/operator)
+  2  Sport                 sports                       Cabang olahraga (Wushu, Kung Fu)
+  3  Discipline            disciplines                  Nomor tanding (Chang Quan, Nan Quan, dll)
+  4  AgeCategory           age_categories               Kategori umur (A, B, C, D, dll)
+  5  DisciplineAgeCategory discipline_age_categories    Pivot: discipline <-> age category
+  6  Event                 events                       Event/turnamen
+  7  EventCategory         event_categories             Kategori dalam event (discipline+umur+gender)
+  8  Athlete               athletes                     Data atlet
+  9  Perguruan             perguruans                   Perguruan/klub beladiri
+ 10  Registration          registrations                Pendaftaran atlet ke discipline
+ 11  EventParticipant      event_participants           Peserta dalam event category
+ 12  Invoice               invoices                     Tagihan biaya pendaftaran
+ 13  InvoiceItem           invoice_items                Detail item invoice
+ 14  Contest               contests                     Slot pertandingan solo (Taolu)
+ 15  ContestResult         contest_results              Hasil pertandingan
+ 16  ContestScore          contest_scores               Skor pertandingan
+ 17  TaoluScore            taolu_scores                 Skor khusus Taolu
+ 18  CompetitionSession    competition_sessions         Sesi pertandingan (jadwal)
+ 19  Arena                 arenas                       Lapangan/arena
+ 20  Winner                winners                      Pemenang per kategori
+ 21  Certificate           certificates                 Sertifikat pemenang
+ 22  Match                 (backup - .bak)              Pertandingan (legacy/sparring)
+
+
+4. ROLE & PERMISSION SYSTEM
+================================================================================
+
+Role yang tersedia:
+  - admin     : Akses penuh ke semua fitur CMS
+  - coach     : Mendaftarkan atlet, melihat invoice
+  - judge     : Memberi skor pertandingan
+  - operator  : Input nilai Taolu
+  - perguruan : Organisasi/klub (perlu verifikasi admin)
+
+Middleware yang digunakan:
+  - auth:sanctum         → Autentikasi via Sanctum token
+  - role:admin           → Hanya role admin
+  - role:coach           → Hanya role coach
+  - role:operator        → Hanya role operator
+  - permission:manage sports → Permission spesifik
+
+
+5. ROUTING (228 baris)
+================================================================================
+
+A. PUBLIC ROUTES
+   - GET /                          → Halaman welcome
+   - GET /home                      → Redirect ke admin dashboard
+
+B. AUTH ROUTES (/auth)
+   - GET  /login                    → Form login
+   - POST /login                    → Proses login
+   - GET  /register                 → Form register
+   - GET  /register-perguruan       → Form register perguruan
+   - POST /register-perguruan       → Proses register perguruan
+   - POST /logout                   → Logout
+   - GET  /me                       → Profil user
+
+C. ADMIN ROUTES (/admin) [middleware: auth:sanctum, role:admin]
+   - Dashboard                      → GET /admin/dashboard
+   - Master Data:
+     * Sports (CRUD)                → /admin/sports
+     * Events (CRUD + status)       → /admin/events
+     * Disciplines (CRUD)           → /admin/disciplines
+     * Age Categories (CRUD)        → /admin/age-categories
+     * Arenas (CRUD)                → /admin/arenas
+   - Matches (CRUD + generate)      → /admin/matches
+   - Athletes (CRUD)                → /admin/athletes
+   - Winners (index/show/delete)    → /admin/winners
+   - Certificates (generate/batch)  → /admin/certificates
+   - Perguruan (CRUD + verify)      → /admin/perguruans
+   - Coaches (CRUD + verify)        → /admin/coaches
+   - Invoices (CRUD + actions)      → /admin/invoices
+   - Contests (CRUD + generate)     → /admin/contests
+   - Sessions (CRUD + generate)     → /admin/sessions
+
+D. SHARED ROUTES (admin/coach/judge)
+   - Event Participants (CRUD)      → /events/{event}/participants
+   - Scoring                        → /matches/{match}/scores
+   - Schedule                       → /schedule
+
+E. COACH ROUTES (/coach) [middleware: auth:sanctum, role:coach]
+   - Dashboard                      → GET /coach/dashboard
+   - Athletes (CRUD)                → /coach/athletes
+   - Invoices                       → /coach/invoices
+
+F. OPERATOR ROUTES (/operator) [middleware: auth, role:operator]
+   - Scores (index/edit/update)     → /operator/scores
+
+
+6. SERVICE LAYER
+================================================================================
+
+A. RegistrationService.php
+   - registerDisciplines()     → Mendaftarkan atlet ke discipline
+   - getOrCreateInvoice()      → Buat/ambil invoice draft
+   - generateRegistrationNumber() → Generate nomor registrasi (race-condition safe)
+   - approve() / reject()      → Ubah status registrasi
+   Harga per discipline: Rp 200.000
+
+B. InvoiceService.php
+   - Manajemen invoice dan pembayaran
+
+C. AthleteService.php
+   - Helper untuk operasi atlet
+
+D. MatchGeneratorService.php
+   - Generate bracket pertandingan
+
+
+7. ALUR BISNIS UTAMA
+================================================================================
+
+A. PENDAFTARAN ATLET (Registration Flow):
+   ┌──────────┐    ┌──────────────┐    ┌─────────────────┐
+   │  Coach   │───>│  Daftarkan   │───>│  Registration   │
+   │  Login   │    │  Atlet +     │    │  (pending)      │
+   └──────────┘    │  Discipline  │    └────────┬────────┘
+                   └──────────────┘             │
+                          │                     ▼
+                   ┌──────────────┐    ┌─────────────────┐
+                   │  Invoice     │<───│ EventParticipant│
+                   │  (draft)     │    │  (pending)      │
+                   └──────┬───────┘    └─────────────────┘
+                          │
+                          ▼
+                   ┌──────────────┐
+                   │  Admin       │
+                   │  Verify &    │
+                   │  Send Invoice│
+                   └──────────────┘
+
+B. ALUR STATUS INVOICE:
+   draft → sent → paid
+   draft → cancelled
+   sent  → cancelled
+
+C. ALUR PERTANDINGAN (Taolu/Solo):
+   EventCategory → Generate Contests → Assign Session/Arena
+   → Operator Input Score → Calculate Winner → Generate Certificate
+
+D. ALUR STATUS PESERTA:
+   pending → verified → (compete)
+   pending → rejected
+   verified → withdrawn
+   verified → disqualified
+
+
+8. DATABASE SCHEMA (Tabel Utama)
+================================================================================
+
+users:
+  - id, name, email, password, phone, avatar, status, perguruan_id
+
+sports:
+  - id, name, description, is_active
+
+disciplines:
+  - id, sport_id, name, type (empty_hand|weapon),
+    match_type (performance|sparring), description, is_active
+
+age_categories:
+  - id, name, sport_id, min_age, max_age
+
+events:
+  - id, name, slug, description, sport_type, registration_start/end,
+    start_date, end_date, location, venue, capacity, status,
+    created_by, banner_image, registration_fee
+
+event_categories:
+  - id, event_id, sport_id, discipline_id, age_category_id, gender,
+    weight_class, max_participants, format, notes
+
+athletes:
+  - id, user_id, perguruan_id, name, birth_date, gender, club, phone,
+    photo, id_card_number, weight, height, address, is_active
+
+registrations:
+  - id, user_id, athlete_id, discipline_id, age_category_id,
+    status, registered_at
+
+event_participants:
+  - id, event_category_id, athlete_id, registration_id, registered_by,
+    verified_by, registration_number, status, weight_at_registration,
+    verified_at, rejection_reason
+
+invoices:
+  - id, user_id, invoice_number, total_amount, status, due_date,
+    paid_at, notes
+
+invoice_items:
+  - id, invoice_id, athlete_id, event_participant_id, discipline_id, price
+
+contests:
+  - id, event_category_id, athlete_id, registration_id,
+    competition_session_id, order_number, status, arena_id
+
+winners:
+  - id, event_category_id, athlete_id, rank, total_score,
+    medal_type, notes
+
+certificates:
+  - id, winner_id, issued_by, certificate_number, file_path,
+    issued_at, is_printed, printed_at, template_version, notes
+
+
+9. DEPENDENCY (composer.json)
+================================================================================
+
+Production:
+  - php                       : ^8.2
+  - laravel/framework         : ^12.0
+  - laravel/sanctum           : ^4.3
+  - laravel/jetstream         : ^5.5
+  - laravel/tinker            : ^2.10.1
+  - spatie/laravel-permission  : ^6.25
+  - barryvdh/laravel-dompdf   : ^3.1
+
+Development:
+  - barryvdh/laravel-debugbar : ^4.2
+  - fakerphp/faker            : ^1.23
+  - laravel/pail              : ^1.2.2
+  - laravel/pint              : ^1.24
+  - laravel/sail              : ^1.41
+  - mockery/mockery           : ^1.6
+  - nunomaduro/collision      : ^8.6
+  - phpunit/phpunit           : ^11.5.50
+
+Frontend (package.json):
+  - Vite
+  - TailwindCSS
+  - PostCSS / Autoprefixer
+
+
+10. TEMUAN & POTENSI MASALAH (BUGS / CODE SMELL)
+================================================================================
+
+[BUG-01] RegistrationService.php - Variabel undefined
+  Lokasi  : Baris 44-48
+  Masalah : Variabel $discipline, $ageCategory digunakan sebelum loop foreach,
+            sehingga akan menghasilkan error "Undefined variable".
+  Kode    :
+    $categoryName = implode(' ', [
+        $discipline->name,        // ← UNDEFINED (belum ada di scope ini)
+        $ageCategory->name,       // ← UNDEFINED
+        ucfirst($athlete->gender)
+    ]);
+  Solusi  : Pindahkan pembuatan $categoryName ke dalam loop foreach,
+            setelah $disciplineId dan $ageCategoryId di-resolve.
+
+[BUG-02] RegistrationService.php - $categoryName tidak dipakai dengan benar
+  Lokasi  : Baris 81
+  Masalah : $categoryName menggunakan variabel yang undefined (lihat BUG-01).
+            Seharusnya resolve Discipline dan AgeCategory model dulu.
+  Solusi  : Di dalam loop, load model Discipline dan AgeCategory, baru buat
+            $categoryName.
+
+[BUG-03] EventCategory - fillable tidak termasuk 'name' dan 'status'
+  Lokasi  : app/Models/EventCategory.php baris 16-26
+  Masalah : RegistrationService.php mencoba firstOrCreate dengan field 'name'
+            dan 'status', tapi kolom tersebut TIDAK ada di $fillable.
+  Solusi  : Tambahkan 'name' dan 'status' ke $fillable EventCategory, atau
+            pastikan kolom tersebut ada di migration.
+
+[BUG-04] InvoiceItem - fillable tidak konsisten dengan kode
+  Lokasi  : app/Models/InvoiceItem.php baris 31-37
+  Masalah : RegistrationService membuat InvoiceItem dengan 'event_category_id',
+            tapi $fillable hanya punya 'event_participant_id'. Tidak ada
+            'event_category_id' di fillable.
+  Solusi  : Sesuaikan $fillable atau kode di RegistrationService.
+
+[BUG-05] Event model - getHasMatchesAttribute() error
+  Lokasi  : app/Models/Event.php baris 133-136
+  Masalah : Method matches() di-comment (baris 72-75), tapi accessor
+            getHasMatchesAttribute() masih memanggil $this->matches().
+  Solusi  : Uncomment method matches() atau hapus accessor yang bergantung.
+
+[BUG-06] Registration model - age_category() relasi salah
+  Lokasi  : app/Models/Registration.php baris 41-44
+  Masalah : Menggunakan HasMany untuk age_category(), seharusnya BelongsTo.
+            Registration memiliki satu age_category_id, bukan sebaliknya.
+  Solusi  : Ganti HasMany menjadi BelongsTo:
+            return $this->belongsTo(AgeCategory::class);
+
+[BUG-07] Athlete model - coach_id tidak di fillable
+  Lokasi  : app/Models/Athlete.php baris 18
+  Masalah : 'coach_id' di-comment di $fillable, tapi relasi coach() (baris 72)
+            dan scope byCoach() (baris 142) masih menggunakan kolom ini.
+  Solusi  : Aktifkan 'coach_id' di $fillable jika memang diperlukan.
+
+[BUG-08] DashboardController - Query Postgres di SQLite
+  Lokasi  : app/Http/Controllers/Admin/DashboardController.php baris 65-70
+  Masalah : Menggunakan to_char() dan INTERVAL yang merupakan syntax PostgreSQL,
+            tapi database menggunakan SQLite. Akan error saat dijalankan.
+  Solusi  : Gunakan syntax yang kompatibel atau pakai DB::raw() yang
+            mendukung multiple driver.
+
+[BUG-09] Winner model - Relasi duplikat/conflict
+  Lokasi  : app/Models/Winner.php
+  Masalah : Ada dua set relasi: satu yang di-comment (via eventCategory)
+            dan satu yang aktif (langsung via event_id, discipline_id).
+            $fillable menggunakan 'event_category_id' tapi relasi aktif
+            menggunakan kolom langsung. Ini inkonsisten.
+  Solusi  : Pilih salah satu pendekatan dan konsisten.
+
+[BUG-10] EventCategory - contests() relasi custom key salah
+  Lokasi  : app/Models/EventCategory.php baris 63-66
+  Masalah : contests() menggunakan foreign key 'discipline_id' dan local key
+            'discipline_id'. Ini bukan relasi standar HasMany ke Contest.
+            Contest memiliki 'event_category_id', bukan 'discipline_id'.
+  Solusi  : Ganti ke:
+            return $this->hasMany(Contest::class);
+
+[CODE-SMELL-01] File backup/copy bertebaran
+  File    : RegistrationService copy.php, AthleteController copy.php,
+            web copy.php, Match.php.bak, AthleteSeeder copy.php
+  Masalah : File copy/backup tidak perlu di-commit ke repository.
+  Solusi  : Hapus file backup atau tambahkan ke .gitignore.
+
+[CODE-SMELL-02] Banyak file TODO.md
+  File    : TODO.md, TODO_ADMIN_SEEDER.md, TODO_COMPLETE_SEEDERS.md,
+            TODO_CONTEST_REFACTOR.md, TODO_DASHBOARD.md, TODO_SEEDER_FIX.md,
+            TODO_SEEDER_NOMOR_TANDING.md, TODO_VERIFY_FIX.md
+  Masalah : Terlalu banyak file TODO terpisah, sulit dilacak.
+  Solusi  : Konsolidasi ke satu file atau gunakan issue tracker.
+
+[CODE-SMELL-03] Seeder sebagian di-comment
+  Lokasi  : database/seeders/DatabaseSeeder.php baris 31-46
+  Masalah : AthleteSeeder dan seluruh grup 'Tournament' + 'Contest Pipeline'
+            di-comment. Data dummy tidak lengkap.
+
+[CODE-SMELL-04] CoachRegistrationController di-import tapi route di-comment
+  Lokasi  : routes/web.php baris 37-38 dan 219
+  Masalah : Import ada tapi route di-comment. Bisa menyebabkan
+            "class not found" jika class tidak ada.
+
+[CODE-SMELL-05] Shared routes tanpa middleware auth
+  Lokasi  : routes/web.php baris 166-203
+  Masalah : Beberapa shared routes (event participants, scoring, schedule)
+            tidak memiliki middleware auth. Berpotensi diakses tanpa login.
+  Solusi  : Tambahkan middleware auth/auth:sanctum.
+
+
+11. STATISTIK PROJECT
+================================================================================
+
+Total Models          : 22
+Total Controllers     : ~29 (Admin: 18, Coach: 6, Auth: 1, Operator: 1, Shared: 3)
+Total Migrations      : 30
+Total Seeders         : 23
+Total Service Classes : 5
+Total Routes          : ~70+ endpoint
+Total Views Sections  : 7 section utama (admin, auth, coach, etc.)
+Lines of Routing Code : 228 baris
+
+
+12. REKOMENDASI PERBAIKAN (PRIORITAS)
+================================================================================
+
+PRIORITAS TINGGI:
+  1. Fix BUG-01 & BUG-02: Variabel undefined di RegistrationService
+  2. Fix BUG-06: Relasi age_category() di Registration model
+  3. Fix BUG-08: Query PostgreSQL di environment SQLite
+  4. Fix BUG-05: Method matches() yang di-comment tapi masih dipanggil
+  5. Fix CODE-SMELL-05: Tambahkan middleware auth di shared routes
+
+PRIORITAS SEDANG:
+  6. Fix BUG-03 & BUG-04: Konsistensi $fillable di model
+  7. Fix BUG-09: Konsistensi relasi Winner model
+  8. Fix BUG-10: Relasi contests() di EventCategory
+  9. Hapus file backup/copy (CODE-SMELL-01)
+  10. Aktifkan kembali seeders yang di-comment (CODE-SMELL-03)
+
+PRIORITAS RENDAH:
+  11. Konsolidasi file TODO.md (CODE-SMELL-02)
+  12. Bersihkan import yang tidak terpakai (CODE-SMELL-04)
+  13. Tambahkan Form Request validation di semua controller
+  14. Tambahkan API documentation (Swagger/OpenAPI)
+  15. Buat unit test untuk Service classes
+
+
+13. KESIMPULAN
+================================================================================
+
+Project "Arch" adalah CMS turnamen beladiri yang cukup komprehensif dengan
+arsitektur Laravel yang baik (Model-Controller-Service pattern). Project ini
+menangani alur lengkap dari pendaftaran atlet, pengelolaan event, penjadwalan
+pertandingan, scoring, penentuan pemenang, hingga pembuatan sertifikat.
+
+Namun, terdapat beberapa bug kritis terutama di RegistrationService (variabel
+undefined) dan inkonsistensi antara model fillable dengan kode yang
+menggunakannya. Query dashboard juga menggunakan syntax PostgreSQL padahal
+database yang dipakai adalah SQLite.
+
+Secara keseluruhan, fondasi arsitektur sudah solid, namun perlu dilakukan
+code review menyeluruh dan perbaikan bug sebelum deployment ke production.
+
+================================================================================
+                         AKHIR ANALISIS PROJECT
+================================================================================

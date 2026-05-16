@@ -5,47 +5,14 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Support\Carbon;
 
-/**
- * App\Models\Athlete
- *
- * @property int                             $id
- * @property int|null                        $user_id      Akun user milik atlet (opsional)
- * @property int|null                        $coach_id     FK ke users (role: coach)
- * @property string                          $name
- * @property \Illuminate\Support\Carbon      $birth_date
- * @property string                          $gender       male|female
- * @property string|null                     $club
- * @property string|null                     $phone
- * @property string|null                     $photo
- * @property string|null                     $id_card_number
- * @property float|null                      $weight       Berat badan (kg)
- * @property float|null                      $height       Tinggi badan (cm)
- * @property string|null                     $address
- * @property bool                            $is_active
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property \Illuminate\Support\Carbon|null $deleted_at
- *
- * @property-read int                              $age            Usia saat ini (computed)
- * @property-read User|null                        $user
- * @property-read User|null                        $coach
- * @property-read Collection<int, EventParticipant> $eventParticipants
- * @property-read Collection<int, Score>            $scores
- * @property-read Collection<int, Winner>           $winners
- * @property-read Collection<int, Match>            $matchesAsAthlete1
- * @property-read Collection<int, Match>            $matchesAsAthlete2
- */
 class Athlete extends Model
 {
     use HasFactory, SoftDeletes;
 
-    // ── Fillable ───────────────────────────────────────────────────
     protected $fillable = [
         'user_id',
         'perguruan_id',
@@ -62,7 +29,6 @@ class Athlete extends Model
         'is_active',
     ];
 
-    // ── Casts ─────────────────────────────────────────────────────
     protected $casts = [
         'birth_date' => 'date',
         'weight'     => 'decimal:2',
@@ -70,149 +36,159 @@ class Athlete extends Model
         'is_active'  => 'boolean',
     ];
 
-    // ── Gender constants ───────────────────────────────────────────
-    const GENDER_MALE   = 'male';
-    const GENDER_FEMALE = 'female';
-
-    // ══════════════════════════════════════════════════════════════
-    // RELATIONSHIPS
-    // ══════════════════════════════════════════════════════════════
+    /*
+    |--------------------------------------------------------------------------
+    | RELATIONSHIPS
+    |--------------------------------------------------------------------------
+    */
 
     /**
-     * Akun user yang dimiliki atlet ini (jika ada).
+     * Akun user milik atlet (jika atlet punya akun sendiri).
      */
+
     public function user(): BelongsTo
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'user_id');
+    }
+    public function eventParticipants(): HasMany
+    {
+    return $this->hasMany(EventParticipant::class);
+    }
+    public function eventCategories(): HasMany
+    {
+    return $this->hasMany(EventCategory::class);
+    }
+    public function winners(): HasMany
+    {
+    return $this->hasMany(Winner::class);
     }
 
     /**
-     * Coach (user dengan role coach) yang mengelola atlet ini.
+     * Coach yang mendaftarkan atlet ini.
      */
     public function coach(): BelongsTo
     {
         return $this->belongsTo(User::class, 'coach_id');
     }
 
+    /**
+     * Perguruan tempat atlet terdaftar.
+     */
     public function perguruan(): BelongsTo
     {
         return $this->belongsTo(Perguruan::class, 'perguruan_id');
     }
 
     /**
-     * Semua pendaftaran event milik atlet ini.
-     */
-    public function eventParticipants(): HasMany
-    {
-        return $this->hasMany(EventParticipant::class);
-    }
-
-    /**
-     * Semua nilai/score yang diterima atlet ini dari para juri.
-     */
-    public function scores(): HasMany
-    {
-        return $this->hasMany(Score::class);
-    }
-
-    /**
-     * Semua kemenangan atlet ini di berbagai event.
-     */
-    public function winners(): HasMany
-    {
-        return $this->hasMany(Winner::class);
-    }
-
-    /**
-     * Sertifikat yang dimiliki atlet ini (melalui winners).
-     */
-    public function certificates(): HasManyThrough
-    {
-        return $this->hasManyThrough(Certificate::class, Winner::class);
-    }
-
-    /**
-     * Pertandingan di mana atlet ini berada di posisi athlete1.
-     */
-    public function matchesAsAthlete1(): HasMany
-    {
-        return $this->hasMany(Contest::class, 'athlete1_id');
-    }
-
-    /**
-     * Pertandingan di mana atlet ini berada di posisi athlete2.
-     */
-    public function matchesAsAthlete2(): HasMany
-    {
-        return $this->hasMany(Contest::class, 'athlete2_id');
-    }
-
-    /**
-     * Hasil pertandingan di mana atlet ini menjadi pemenang.
-     */
-    public function wonMatches(): HasMany
-    {
-        return $this->hasMany(ContestResult::class, 'winner_id');
-    }
-
-    // ══════════════════════════════════════════════════════════════
-    // ACCESSORS
-    // ══════════════════════════════════════════════════════════════
-
-    /**
-     * Usia atlet saat ini berdasarkan birth_date.
+     * Disiplin-disiplin yang diikuti atlet (many-to-many via pivot athlete_discipline).
+     * Pivot menyimpan age_category_id.
      *
-     * @return int
+     * Contoh akses:
+     *   $athlete->disciplines                             // collection of Discipline
+     *   $athlete->disciplines->first()->pivot->age_category_id
      */
-    public function getAgeAttribute(): int
+    public function disciplines(): BelongsToMany
     {
-        return Carbon::parse($this->birth_date)->age;
+        return $this->belongsToMany(Discipline::class, 'athlete_discipline')
+            ->withPivot('age_category_id')
+            ->withTimestamps();
     }
 
     /**
-     * Nama lengkap dengan klub.
+     * Age categories yang dipilih atlet (via pivot athlete_discipline).
+     *
+     * Contoh akses:
+     *   $athlete->ageCategories                          // collection of AgeCategory
+     *   $athlete->ageCategories->first()->pivot->discipline_id
      */
-    public function getFullLabelAttribute(): string
+    public function ageCategories(): BelongsToMany
     {
-        return "{$this->name}" . ($this->club ? " ({$this->club})" : '');
+        return $this->belongsToMany(AgeCategory::class, 'athlete_discipline')
+            ->withPivot('discipline_id')
+            ->withTimestamps();
     }
 
-    // ══════════════════════════════════════════════════════════════
-    // SCOPES
-    // ══════════════════════════════════════════════════════════════
+    /**
+     * Semua registrasi kompetisi milik atlet ini.
+     */
+    public function registrations(): HasMany
+    {
+        return $this->hasMany(Registration::class);
+    }
 
+    /*
+    |--------------------------------------------------------------------------
+    | SCOPES
+    |--------------------------------------------------------------------------
+    */
+
+    /**
+     * Filter hanya atlet aktif.
+     *
+     * Contoh: Athlete::active()->get()
+     */
     public function scopeActive($query)
     {
         return $query->where('is_active', true);
     }
 
-    public function scopeMale($query)
-    {
-        return $query->where('gender', self::GENDER_MALE);
-    }
 
-    public function scopeFemale($query)
-    {
-        return $query->where('gender', self::GENDER_FEMALE);
-    }
-
+    /**
+     * Filter atlet milik coach tertentu.
+     *
+     * Contoh: Athlete::byCoach(Auth::id())->get()
+     */
     public function scopeByCoach($query, int $coachId)
     {
         return $query->where('coach_id', $coachId);
     }
 
-    // ══════════════════════════════════════════════════════════════
-    // HELPERS
-    // ══════════════════════════════════════════════════════════════
+    /**
+     * Filter atlet milik perguruan tertentu.
+     *
+     * Contoh: Athlete::byPerguruan($perguruanId)->get()
+     */
+    public function scopeByPerguruan($query, int $perguruanId)
+    {
+        return $query->where('perguruan_id', $perguruanId);
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | ACCESSORS
+    |--------------------------------------------------------------------------
+    */
 
     /**
-     * Gabungkan semua pertandingan atlet (sebagai athlete1 dan athlete2).
-     * Mengembalikan collection yang sudah di-merge.
+     * URL lengkap foto profil. Fallback ke avatar default jika kosong.
+     *
+     * Contoh: $athlete->photo_url
      */
-    public function getAllMatches(): Collection
+    public function getPhotoUrlAttribute(): string
     {
-        return $this->matchesAsAthlete1
-            ->merge($this->matchesAsAthlete2)
-            ->sortBy('match_date');
+        return $this->photo
+            ? asset('storage/' . $this->photo)
+            : asset('images/default-avatar.png');
+    }
+
+    /**
+     * Usia atlet dihitung dari birth_date.
+     *
+     * Contoh: $athlete->age  →  17
+     */
+    public function getAgeAttribute(): int
+    {
+        return $this->birth_date->age;
+    }
+
+    /**
+     * Nama gender yang mudah dibaca.
+     *
+     * Contoh: $athlete->gender_label  →  'Laki-laki' / 'Perempuan'
+     */
+    public function getGenderLabelAttribute(): string
+    {
+        return $this->gender === 'male' ? 'Laki-laki' : 'Perempuan';
     }
 }
+

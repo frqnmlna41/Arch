@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 
-@section('title', 'Dashboard Perguruan')
+@section('title', 'Dashboard - Tambah Atlet')
 
 @section('content')
     <div class="space-y-6">
@@ -15,7 +15,7 @@
         </div>
         <!-- Form -->
         <div class="bg-white p-6 rounded-xl">
-            <form action="{{ route('athletes.store') }}" method="POST" enctype="multipart/form-data" class="space-y-6">
+            <form action="{{ route('admin.athletes.store') }}" method="POST" enctype="multipart/form-data" class="space-y-6">
                 @csrf
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
@@ -29,8 +29,7 @@
                     </div>
                     <div>
                         <label for="gender" class="block text-sm font-medium text-gray-700">Jenis Kelamin</label>
-                        <select name="gender" id="gender" required
-                            class="input input-neutral mt-1 block w-full">
+                        <select name="gender" id="gender" required class="input input-neutral mt-1 block w-full">
                             <option value="">Pilih Jenis Kelamin</option>
                             <option value="laki-laki">Laki-laki</option>
                             <option value="perempuan">Perempuan</option>
@@ -52,12 +51,10 @@
                             class="file-input file-input-neutral mt-1 block w-full text-sm text-gray-500">
                     </div>
                     <div>
-                        <a href="/admin/dashboard-perguruan" type="button"
-                            class="btn btn-error mt-6">
+                        <a href="{{ route('admin.athletes.index') }}" type="button" class="btn btn-error mt-6">
                             Batalkan
                         </a>
-                        <button type="submit"
-                            class="btn btn-success mt-6 ml-2">
+                        <button type="submit" class="btn btn-success mt-6 ml-2">
                             Simpan Atlet
                         </button>
                     </div>

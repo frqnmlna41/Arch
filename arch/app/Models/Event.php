@@ -2,137 +2,136 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\HasManyThrough;
-use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Builder;
+use App\Models\Match as Contest;
 
-/**
- * App\Models\Event
- *
- * @property int                             $id
- * @property int                             $created_by
- * @property string                          $name
- * @property string                          $location
- * @property \Illuminate\Support\Carbon      $start_date
- * @property \Illuminate\Support\Carbon      $end_date
- * @property \Illuminate\Support\Carbon|null $registration_start
- * @property \Illuminate\Support\Carbon|null $registration_end
- * @property string                          $status       draft|published|ongoing|completed|cancelled
- * @property string|null                     $description
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property \Illuminate\Support\Carbon|null $deleted_at
- *
- * @property-read User                              $creator
- * @property-read Collection<int, EventParticipant> $participants
- * @property-read Collection<int, Match>            $matches
- */
 class Event extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory;
 
-    // ── Fillable ───────────────────────────────────────────────────
     protected $fillable = [
-        'created_by',
         'name',
-        'location',
-        'start_date',
-        'end_date',
+        'slug',
+        'description',
+        'sport_type',
         'registration_start',
         'registration_end',
+        'start_date',
+        'end_date',
+        'location',
+        'venue',
+        'capacity',
         'status',
-        'description',
+        'created_by',
+        'banner_image',
+        'registration_fee',
     ];
 
-    // ── Casts ─────────────────────────────────────────────────────
     protected $casts = [
-        'start_date'         => 'date',
-        'end_date'           => 'date',
-        'registration_start' => 'date',
-        'registration_end'   => 'date',
+        'registration_start' => 'datetime',
+        'registration_end' => 'datetime',
+        'start_date' => 'date',
+        'end_date' => 'date',
+        'capacity' => 'integer',
+        'registration_fee' => 'decimal:2',
     ];
-
-    // ── Status constants ───────────────────────────────────────────
-    const STATUS_DRAFT     = 'draft';
-    const STATUS_PUBLISHED = 'published';
-    const STATUS_ONGOING   = 'ongoing';
-    const STATUS_COMPLETED = 'completed';
-    const STATUS_CANCELLED = 'cancelled';
-
-    // ══════════════════════════════════════════════════════════════
-    // RELATIONSHIPS
-    // ══════════════════════════════════════════════════════════════
 
     /**
-     * Admin/user yang membuat event ini.
+     * Scopes
      */
+    public function scopePublished(Builder $query): Builder
+    {
+        return $query->where('status', 'published')
+                     ->where('start_date', '>=', now()->startOfDay());
+    }
+
+    public function scopeUpcoming(Builder $query): Builder
+    {
+        return $query->where('status', 'published')
+                     ->where('start_date', '>', now());
+    }
+
+    public function scopePast(Builder $query): Builder
+    {
+        return $query->where('end_date', '<', now());
+    }
+
+    /**
+     * Relations
+     */
+    public function categories(): HasMany
+    {
+        return $this->hasMany(EventCategory::class);
+    }
+
+    // public function matches(): HasMany
+    // {
+    //     return $this->hasManyThrough(Contest::class, EventCategory::class);
+    // }
+
     public function creator(): BelongsTo
     {
         return $this->belongsTo(User::class, 'created_by');
     }
-
-    /**
-     * Semua peserta yang terdaftar dalam event ini.
-     */
-    public function participants(): HasMany
+     public function participants(): HasMany
     {
         return $this->hasMany(EventParticipant::class);
     }
 
     /**
-     * Semua pertandingan dalam event ini.
+     * Accessors
      */
-    public function matches(): HasMany
+    public function getDurationAttribute(): string
     {
-        return $this->hasMany(Contest::class);
+        return $this->start_date->diffForHumans($this->end_date);
     }
 
-    // ══════════════════════════════════════════════════════════════
-    // SCOPES
-    // ══════════════════════════════════════════════════════════════
-
-    public function scopePublished($query)
+    public function getStatusBadgeAttribute(): string
     {
-        return $query->where('status', self::STATUS_PUBLISHED);
+        $status = $this->status ?? 'draft';
+
+        return match($status) {
+            'draft' => 'bg-gray-100 text-gray-800',
+            'published' => 'bg-green-100 text-green-800',
+            'ongoing' => 'bg-blue-100 text-blue-800',
+            'completed' => 'bg-indigo-100 text-indigo-800',
+            'cancelled' => 'bg-red-100 text-red-800',
+            default => 'bg-gray-100 text-gray-800',
+        };
     }
 
-    public function scopeOngoing($query)
+    /**
+     * Is registration open?
+     */
+    public function getRegistrationOpenAttribute(): bool
     {
-        return $query->where('status', self::STATUS_ONGOING);
+        return now()->between(
+            $this->registration_start,
+            $this->registration_end
+        );
     }
 
-    public function scopeUpcoming($query)
+    /**
+     * Total registered participants
+     */
+    public function getTotalParticipantsAttribute(): int
     {
-        return $query->where('start_date', '>', now());
+        return $this->categories()
+            ->withCount('eventParticipants')
+            ->get()
+            ->sum('event_participants_count');
     }
 
-    /** Event yang masih dalam periode registrasi. */
-    public function scopeOpenRegistration($query)
+    /**
+     * Check if event has matches generated
+     */
+    public function getHasMatchesAttribute(): bool
     {
-        $now = now()->toDateString();
-        return $query->where('registration_start', '<=', $now)
-                     ->where('registration_end', '>=', $now)
-                     ->where('status', self::STATUS_PUBLISHED);
-    }
-
-    // ══════════════════════════════════════════════════════════════
-    // HELPERS
-    // ══════════════════════════════════════════════════════════════
-
-    public function isRegistrationOpen(): bool
-    {
-        $now = now()->toDateString();
-        return $this->status === self::STATUS_PUBLISHED
-            && $this->registration_start <= $now
-            && $this->registration_end   >= $now;
-    }
-
-    public function isCompleted(): bool
-    {
-        return $this->status === self::STATUS_COMPLETED;
+        $this->contests()->exists();
     }
 }

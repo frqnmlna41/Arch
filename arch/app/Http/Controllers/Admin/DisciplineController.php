@@ -10,6 +10,7 @@ use App\Models\Discipline;
 use App\Models\Sport;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\View\View;
 
 /**
  * DisciplineController
@@ -31,25 +32,26 @@ class DisciplineController extends Controller
     // INDEX – Daftar discipline (bisa difilter per sport)
     // ──────────────────────────────────────────────────────────────
 
-    public function index(Request $request): JsonResponse
-    {
-        try {
-            $disciplines = Discipline::query()
-                ->with('sport')
-                ->withCount('ageCategories')
-                ->when($request->sport_id,   fn ($q, $v) => $q->where('sport_id', $v))
-                ->when($request->type,        fn ($q, $v) => $q->where('type', $v))
-                ->when($request->match_type,  fn ($q, $v) => $q->where('match_type', $v))
-                ->when($request->search,      fn ($q, $s) => $q->where('name', 'like', "%{$s}%"))
-                ->when($request->boolean('active'), fn ($q) => $q->where('is_active', true))
-                ->latest()
-                ->paginate($request->integer('per_page', 15));
+    // Tambah import di atas
 
-            return response()->json(['status' => 'success', 'data' => $disciplines]);
-        } catch (\Exception $e) {
-            return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
-        }
-    }
+public function index(Request $request): View
+{
+    $disciplines = Discipline::query()
+        ->with('sport')
+        ->withCount('ageCategories')
+        ->when($request->sport_id,  fn($q,$v) => $q->where('sport_id', $v))
+        ->when($request->type,      fn($q,$v) => $q->where('type', $v))
+        ->when($request->match_type,fn($q,$v) => $q->where('match_type', $v))
+        ->when($request->search,    fn($q,$s) => $q->where('name', 'like', "%{$s}%"))
+        ->when($request->boolean('active'), fn($q) => $q->where('is_active', true))
+        ->latest()
+        ->paginate(15);
+
+    $sports        = Sport::select('id', 'name')->orderBy('name')->get();
+    $ageCategories = AgeCategory::select('id', 'name')->orderBy('name')->get();
+
+    return view('admin.disciplines.index', compact('disciplines', 'sports', 'ageCategories'));
+}
 
     // ──────────────────────────────────────────────────────────────
     // STORE

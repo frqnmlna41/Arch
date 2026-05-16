@@ -6,20 +6,6 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     * Migration: 2024_01_01_000004_create_disciplines_table
-     *
-     * Command: php artisan make:migration create_disciplines_table
-     *
-     * Contoh data Wushu:
-     * - Taolu (Sanda, Changquan, Nanquan, Taijiquan)
-     * - Sanda (Full Contact)
-     *
-     * Contoh data Wing Chun:
-     * - Chi Sao
-     * - Forms (Siu Nim Tao, Chum Kiu, Biu Tze)
-     */
     public function up(): void
     {
         Schema::create('disciplines', function (Blueprint $table) {
@@ -28,20 +14,20 @@ return new class extends Migration
                 ->constrained('sports')
                 ->cascadeOnDelete();
             $table->string('name', 100);
+            $table->enum('type', ['empty_hand', 'weapon'])->default('empty_hand')
+                ->comment('Jenis: empty_hand atau weapon');
+            $table->enum('match_type', ['performance', 'sparring'])->default('performance')
+                ->comment('Tipe pertandingan: performance (Taolu/Forms) atau sparring (Sanda/Combat)');
             $table->text('description')->nullable();
             $table->boolean('is_active')->default(true);
             $table->timestamps();
 
-            // Index
             $table->index('sport_id');
             $table->index('name');
-            $table->unique(['sport_id', 'name']); // Nama discipline unik per sport
+            $table->unique(['sport_id', 'name']);
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('disciplines');

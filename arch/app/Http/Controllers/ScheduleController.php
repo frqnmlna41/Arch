@@ -179,34 +179,39 @@ class ScheduleController extends Controller
         try {
             $this->authorize('view', $event);
 
-            $matches = Contest::where('event_id', $event->id)
-                ->with([
-                    'discipline:id,name',
-                    'ageCategory:id,name',
-                    'arena:id,name',
-                    'athlete1:id,name,club',
-                    'athlete2:id,name,club',
-                ])
-                ->whereNotIn('status', ['cancelled'])
-                ->orderBy('match_date')
-                ->orderBy('arena_id')
-                ->orderBy('match_time')
-                ->get();
+            // Refactor: Menggunakan Cache (Cache per event ID selama 30 menit)
+            $cacheKey = "schedule:event:{$event->id}";
+            $grouped = \Illuminate\Support\Facades\Cache::remember($cacheKey, 1800, function() use ($event) {
+                $matches = Contest::where('event_id', $event->id)
+                    ->with([
+                        'discipline:id,name',
+                        'ageCategory:id,name',
+                        'arena:id,name',
+                        'athlete1:id,name,club',
+                        'athlete2:id,name,club',
+                    ])
+                    ->whereNotIn('status', ['cancelled'])
+                    ->orderBy('match_date')
+                    ->orderBy('arena_id')
+                    ->orderBy('match_time')
+                    // Refactor: Ambil HANYA kolom yang dibutuhkan agar memory tidak habis
+                    ->get(['id', 'event_id', 'discipline_id', 'age_category_id', 'arena_id', 'athlete1_id', 'athlete2_id', 'match_date', 'match_time', 'status']);
 
-            // Grouping per tanggal → per arena
-            $grouped = $matches
-                ->groupBy(fn ($m) => $m->match_date?->toDateString() ?? 'unscheduled')
-                ->map(fn ($dayMatches, $date) => [
-                    'date'   => $date,
-                    'arenas' => $dayMatches
-                        ->groupBy('arena_id')
-                        ->map(fn ($arenaMatches) => [
-                            'arena'   => $arenaMatches->first()->arena,
-                            'matches' => $arenaMatches->values(),
-                        ])
-                        ->values(),
-                ])
-                ->values();
+                // Grouping per tanggal → per arena
+                return $matches
+                    ->groupBy(fn ($m) => $m->match_date?->toDateString() ?? 'unscheduled')
+                    ->map(fn ($dayMatches, $date) => [
+                        'date'   => $date,
+                        'arenas' => $dayMatches
+                            ->groupBy('arena_id')
+                            ->map(fn ($arenaMatches) => [
+                                'arena'   => $arenaMatches->first()->arena,
+                                'matches' => $arenaMatches->values(),
+                            ])
+                            ->values(),
+                    ])
+                    ->values();
+            });
 
             return response()->json([
                 'status' => 'success',

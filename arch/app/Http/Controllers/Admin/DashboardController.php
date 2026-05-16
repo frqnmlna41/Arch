@@ -26,7 +26,7 @@ class DashboardController extends Controller
     {
         // Counts for all major entities
         $stats = [
-            'totalPerguruan' => User::role('perguruan')->active()->count(),
+            'totalPerguruan' => User::role('coach')->where('status', 'active')->count(),
             'pendingPerguruan' => User::role('perguruan')->pending()->count(),
             'pendingCoaches' => User::role('coach')->pending()->count(),
             'totalAthletes' => Athlete::active()->count(),
@@ -36,7 +36,7 @@ class DashboardController extends Controller
             'totalArenas' => Arena::count(), // Add active scope if exists
             'totalCertificates' => Certificate::count(),
             'totalWinners' => Winner::count(),
-            'totalScores' => Score::count(),
+            // 'totalScores' => Score::count(),
             // Add more: e.g., totalMatches => Match::count(), if model exists
         ];
 

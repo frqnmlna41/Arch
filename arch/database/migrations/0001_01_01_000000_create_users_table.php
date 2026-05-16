@@ -6,12 +6,6 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     * Migration: 2024_01_01_000001_create_users_table
-     *
-     * Command: php artisan make:migration create_users_table
-     */
     public function up(): void
     {
         Schema::create('users', function (Blueprint $table) {
@@ -20,22 +14,24 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
+            $table->text('two_factor_secret')->nullable();
+            $table->text('two_factor_recovery_codes')->nullable();
+            $table->timestamp('two_factor_confirmed_at')->nullable();
             $table->string('phone', 20)->nullable();
             $table->string('avatar')->nullable();
             $table->boolean('is_active')->default(true);
+            $table->string('status')->default('pending');
+            $table->unsignedBigInteger('perguruan_id')->nullable();
             $table->rememberToken();
             $table->timestamps();
             $table->softDeletes();
 
-            // Index
-            $table->index('email');
             $table->index('is_active');
+            $table->index('status');
+            $table->index('perguruan_id');
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('users');

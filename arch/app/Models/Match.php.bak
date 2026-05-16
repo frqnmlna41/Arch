@@ -1,0 +1,142 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+
+class Match extends Model
+{
+    // Hindari konflik dengan keyword PHP 'match'
+    protected $table = 'matches';
+
+    protected $fillable = [
+        'registration_id',
+        'discipline_id',
+        'age_category_id',
+        'athlete_id',
+        'appearance_order',
+        'match_date',
+        'match_time',
+        'venue',
+        'status',
+        'final_score',
+        'final_rank',
+    ];
+
+    protected $casts = [
+        'match_date'  => 'date',
+        'match_time'  => 'datetime',
+        'final_score' => 'decimal:2',
+    ];
+
+    // ─── Relationships ────────────────────────────────────────
+
+    public function registration(): BelongsTo
+    {
+        return $this->belongsTo(Registration::class);
+    }
+
+    public function discipline(): BelongsTo
+    {
+        return $this->belongsTo(Discipline::class);
+    }
+
+    public function ageCategory(): BelongsTo
+    {
+        return $this->belongsTo(AgeCategory::class);
+    }
+
+    public function athlete(): BelongsTo
+    {
+        return $this->belongsTo(Athlete::class);
+    }
+
+    public function scores(): HasMany
+    {
+        return $this->hasMany(MatchScore::class);
+    }
+
+    // ─── Scopes ───────────────────────────────────────────────
+
+    public function scopeScheduled($query)
+    {
+        return $query->where('status', 'scheduled');
+    }
+
+    public function scopeDone($query)
+    {
+        return $query->where('status', 'done');
+    }
+
+    // ─── Helpers ──────────────────────────────────────────────
+
+    /**
+     * Hitung rata-rata nilai dari semua judge, simpan ke final_score
+     */
+    public function calculateFinalScore(): void
+    {
+        $avg = $this->scores()->avg('score');
+
+        $this->update([
+            'final_score' => round($avg, 2),
+            'status'      => 'done',
+        ]);
+    }
+
+    /**
+     * Setelah semua match dalam discipline + age_category selesai,
+     * hitung ranking berdasarkan final_score
+     */
+    public static function calculateRankings(int $disciplineId, int $ageCategoryId): void
+    {
+        $matches = self::where('discipline_id', $disciplineId)
+            ->where('age_category_id', $ageCategoryId)
+            ->where('status', 'done')
+            ->orderByDesc('final_score')
+            ->get();
+
+        foreach ($matches as $rank => $match) {
+            $match->update(['final_rank' => $rank + 1]);
+        }
+    }
+}
+
+
+// ─────────────────────────────────────────────────────────────
+// File: app/Models/MatchScore.php
+// ─────────────────────────────────────────────────────────────
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+
+class MatchScore extends Model
+{
+    protected $fillable = [
+        'match_id',
+        'judge_id',
+        'score',
+        'notes',
+        'scored_at',
+    ];
+
+    protected $casts = [
+        'score'     => 'decimal:2',
+        'scored_at' => 'datetime',
+    ];
+
+    // ─── Relationships ────────────────────────────────────────
+
+    public function match(): BelongsTo
+    {
+        return $this->belongsTo(Match::class);
+    }
+
+    public function judge(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'judge_id');
+    }
+}

@@ -39,6 +39,7 @@ class UserSeeder extends Seeder
             'name'     => 'Coach Demo',
             'email'    => 'coach@tournament.com',
             'password' => 'password',
+            'perguruan'=>'Bulan Matahari',
             'phone'    => '081200000002',
             'role'     => 'coach',
         ],

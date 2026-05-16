@@ -1,6 +1,6 @@
-@extends('layouts.dashboard-perguruan')
+@extends('layouts.app')
 
-@section('title', 'Dashboard Perguruan')
+@section('title', 'Perguruan Dashboard')
 
 @section('content')
     <div class="space-y-6">
@@ -8,53 +8,59 @@
         <div class="flex items-center justify-between">
             <div>
                 <h1 class="text-3xl font-bold text-gray-900">
-                    <i class="fas fa-school mr-3 text-emerald-600"></i>
-                    Dashboard Perguruan
+                    <i class="fas fa-school mr-3 text-blue-600"></i>
+                    {{ auth()->user()->perguruan->name ?? 'Perguruan' }} Dashboard
                 </h1>
-                <p class="text-gray-600 mt-1">{{ 'Perguruan Kung Fu' }}</p>
+                <p class="text-gray-600 mt-1">Kelola atlet, event, dan prestasi perguruan</p>
             </div>
         </div>
 
         <!-- Stats Cards -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <div class="bg-base-100 p-6 rounded-xl shadow-lg hover:shadow-xl transition-shadow">
-                <div class="flex items-center">
-                    <div class="p-3 bg-emerald-100 rounded-lg">
-                        <i class="fas fa-dumbbell text-2xl text-emerald-600"></i>
-                    </div>
-                    <div class="ml-4">
-                        <p class="text-sm font-medium text-gray-600">Atlet Saya</p>
-                        <p class="text-2xl font-bold text-gray-900">
-                            {{ '15' }}
-                        </p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="bg-base-100 p-6 rounded-xl shadow-lg hover:shadow-xl transition-shadow">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div class="bg-white p-6 rounded-xl shadow-lg">
                 <div class="flex items-center">
                     <div class="p-3 bg-blue-100 rounded-lg">
-                        <i class="fas fa-calendar-check text-2xl text-blue-600"></i>
+                        <i class="fas fa-users text-2xl text-blue-600"></i>
                     </div>
                     <div class="ml-4">
-                        <p class="text-sm font-medium text-gray-600">Pendaftaran Aktif</p>
-                        <p class="text-2xl font-bold text-gray-900">
-                            {{ '112' }}
-                        </p>
+                        <p class="text-sm font-medium text-gray-600">Total Atlet</p>
+                        <p class="text-3xl font-bold text-gray-900">{{ number_format($stats['totalAthletes']) }}</p>
                     </div>
                 </div>
             </div>
 
-            <div class="bg-base-100 p-6 rounded-xl shadow-lg hover:shadow-xl transition-shadow">
+            <div class="bg-white p-6 rounded-xl shadow-lg">
                 <div class="flex items-center">
-                    <div class="p-3 bg-purple-100 rounded-lg">
-                        <i class="fas fa-medal text-2xl text-purple-600"></i>
+                    <div class="p-3 bg-green-100 rounded-lg">
+                        <i class="fas fa-calendar-check text-2xl text-green-600"></i>
                     </div>
                     <div class="ml-4">
-                        <p class="text-sm font-medium text-gray-600">Juara</p>
-                        <p class="text-2xl font-bold text-gray-900">
-                            {{ '5' }}
-                        </p>
+                        <p class="text-sm font-medium text-gray-600">Event Aktif</p>
+                        <p class="text-3xl font-bold text-gray-900">{{ number_format($stats['activeEvents']) }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white p-6 rounded-xl shadow-lg">
+                <div class="flex items-center">
+                    <div class="p-3 bg-yellow-100 rounded-lg">
+                        <i class="fas fa-trophy text-2xl text-yellow-600"></i>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm font-medium text-gray-600">Kemenangan</p>
+                        <p class="text-3xl font-bold text-gray-900">{{ number_format($stats['totalWins']) }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white p-6 rounded-xl shadow-lg">
+                <div class="flex items-center">
+                    <div class="p-3 bg-purple-100 rounded-lg">
+                        <i class="fas fa-star text-2xl text-purple-600"></i>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm font-medium text-gray-600">Total Nilai</p>
+                        <p class="text-3xl font-bold text-gray-900">{{ number_format($stats['totalScores']) }}</p>
                     </div>
                 </div>
             </div>
@@ -62,81 +68,60 @@
 
         <!-- Quick Actions -->
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <!-- My Athletes -->
-            <div class="bg-base-100 p-6 rounded-xl shadow-lg">
-                <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-                    <i class="fas fa-users mr-2 text-emerald-500"></i>
-                    Atlet Saya ({{ '15' }})
-                </h3>
-                <div class="overflow-x-auto">
-                    <table class="w-full">
-                        <thead>
-                            <tr class="border-b">
-                                <th class="py-2 text-left text-sm font-medium text-gray-600">Nama</th>
-                                <th class="py-2 text-left text-sm font-medium text-gray-600">Umur</th>
-                                <th class="py-2 text-left text-sm font-medium text-gray-600">Berat</th>
-                                <th class="py-2 text-right text-sm font-medium text-gray-600">Status</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-gray-200">
-                            @forelse([1, 2, 3] as $dummy)
-                                <tr class="hover:bg-gray-50">
-                                    <td class="py-3">
-                                    <div class="font-medium text-gray-900">{{ 'Nama Atlet Placeholder' }}</div>
-                                    <div class="text-sm text-gray-500">{{ 'Laki-laki' }}</div>
-                                    </td>
-                                <td class="py-3 text-sm font-medium text-gray-900">{{ '20' }} th</td>
-                                <td class="py-3 text-sm font-medium text-gray-900">{{ '65' }} kg</td>
-                                    <td class="py-3 text-right">
-                                        <span
-                                            class="px-2 py-1 text-xs bg-green-100 text-green-800 rounded-full font-medium">
-                                            Aktif
-                                        </span>
-                                    </td>
-                                </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="4" class="py-8 text-center text-gray-500">
-                                        Belum ada atlet
-                                    </td>
-                                </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
+            <!-- Recent Athletes -->
+            <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+                <div class="p-6 border-b border-gray-200">
+                    <h3 class="text-lg font-semibold text-gray-900">
+                        <i class="fas fa-list mr-2 text-indigo-500"></i>
+                        Atlet Terbaru ({{ $athletes->count() }})
+                    </h3>
                 </div>
-                <a href="dashboard-perguruan/add-athlete"
-                    class="mt-4 inline-block bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg font-medium">
-                    <i class="fas fa-plus mr-2"></i>Tambah Atlet
-                </a>
-            </div>
-
-            <!-- Recent Events -->
-            <div class="bg-base-100 p-6 rounded-xl shadow-lg">
-                <h3 class="text-lg font-semibold text-gray-900 mb-4">
-                    <i class="fas fa-calendar mr-2 text-blue-500"></i>
-                    Event Aktif
-                </h3>
-                {{-- @php
-                    $activeEvents = App\Models\Event::active()->get();
-                @endphp --}}
-                <div class="space-y-3">
-                    @forelse([1, 2] as $dummy)
-                        <div class="p-4 border rounded-lg hover:bg-blue-50 transition-colors">
-                            <div class="flex justify-between items-start">
-                                <div>
-                                    <h4 class="font-semibold text-gray-900">{{ 'Q Square Competition' }}</h4>
-                                    <p class="text-sm text-gray-600">{{ '10 Jan 2026' }} - {{ '15 Jan 2026' }}</p>
+                <div class="divide-y divide-gray-200">
+                    @forelse($athletes as $athlete)
+                        <div class="p-6 hover:bg-gray-50">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center">
+                                    <div
+                                        class="w-12 h-12 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold">
+                                        {{ substr($athlete->name, 0, 2) }}
+                                    </div>
+                                    <div class="ml-4">
+                                        <p class="font-medium text-gray-900">{{ $athlete->name }}</p>
+                                        <p class="text-sm text-gray-500">
+                                            {{ $athlete->gender }} | {{ $athlete->weight }}kg | {{ $athlete->age }}thn
+                                        </p>
+                                    </div>
                                 </div>
-                                <span class="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full font-medium">
-                                    {{ '25' }}
-                                    atlet
+                                <span class="px-3 py-1 bg-green-100 text-green-800 text-xs font-medium rounded-full">
+                                    Active
                                 </span>
                             </div>
                         </div>
                     @empty
-                        <div class="text-center py-12 text-gray-500">
-                            <i class="fas fa-calendar-times text-4xl mb-4 opacity-50"></i>
-                            <p>Belum ada event aktif</p>
+                        <div class="p-12 text-center text-gray-500">
+                            Belum ada atlet terdaftar
+                        </div>
+                    @endforelse
+                </div>
+            </div>
+
+            <!-- Recent Participants -->
+            <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+                <div class="p-6 border-b border-gray-200">
+                    <h3 class="text-lg font-semibold text-gray-900">
+                        <i class="fas fa-calendar mr-2 text-green-500"></i>
+                        Pendaftaran Event ({{ $participants->count() }})
+                    </h3>
+                </div>
+                <div class="divide-y divide-gray-200">
+                    @forelse($participants as $participant)
+                        <div class="p-6 hover:bg-gray-50">
+                            <p class="font-medium text-gray-900">{{ $participant->athlete->name }}</p>
+                            <p class="text-sm text-gray-500">{{ $participant->event->name }}</p>
+                        </div>
+                    @empty
+                        <div class="p-12 text-center text-gray-500">
+                            Belum ada pendaftaran event
                         </div>
                     @endforelse
                 </div>

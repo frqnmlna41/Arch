@@ -1,0 +1,1 @@
+- [x]   1. Confirmed: event_category_id, registration_number (as nomor tanding), unique per category/athlete

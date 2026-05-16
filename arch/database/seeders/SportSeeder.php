@@ -8,7 +8,7 @@ use App\Models\Sport;
 /**
  * SportSeeder
  *
- * Membuat data sport utama: Wushu dan Wing Chun.
+ * Membuat data sport utama: Wushu dan Kung fu.
  *
  * Artisan command:
  *   php artisan make:seeder SportSeeder
@@ -24,7 +24,7 @@ class SportSeeder extends Seeder
             'is_active'   => true,
         ],
         [
-            'name'        => 'Wing Chun',
+            'name'        => 'Kung fu',
             'description' => 'Sistem bela diri Kung Fu yang berfokus pada pertarungan jarak dekat, '
                            . 'penggunaan energi efisien, dan teknik tangan yang cepat dan tepat. '
                            . 'Dipopulerkan oleh Ip Man dan Bruce Lee.',

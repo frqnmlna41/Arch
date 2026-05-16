@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 
 /**
  * App\Models\Arena
@@ -47,10 +48,21 @@ class Arena extends Model
     /**
      * Semua pertandingan yang dijadwalkan di arena ini.
      */
-    public function matches(): HasMany
+    public function matches(): HasManyThrough
     {
-        return $this->hasMany(Contest::class);
+        return $this->hasManyThrough(
+            Contest::class,
+            CompetitionSession::class,
+            'arena_id',
+            'competition_session_id',
+            'id',
+            
+        );
     }
+    public function sessions()
+{
+    return $this->hasMany(CompetitionSession::class);
+}
 
     // ══════════════════════════════════════════════════════════════
     // SCOPES

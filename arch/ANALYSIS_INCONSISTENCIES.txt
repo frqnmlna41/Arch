@@ -4,3 +4,6 @@
 - Models: Perguruan/User/Athlete relations
 - Migrations: tables/FKs complete
 - Controllers
+
+View perguruan dan coach belum muncul
+

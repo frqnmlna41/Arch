@@ -10,7 +10,7 @@ class AthletePolicy
 {
     public function viewAny(User $user): bool
     {
-        return $user->hasRole(['admin', 'coach', 'judge', 'perguruan']);
+        return $user->hasRole(['admin', 'coach', 'judge']);
     }
 
     public function view(User $user, Athlete $athlete): bool

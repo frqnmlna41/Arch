@@ -63,9 +63,9 @@ class User extends Authenticatable
         return $this->hasMany(Athlete::class, 'coach_id');
     }
 
-    public function scores(): HasMany
+    public function taoluScores(): HasMany
     {
-        return $this->hasMany(Score::class, 'judge_id');
+        return $this->hasMany(TaoluScore::class, 'inputted_by');
     }
 
     public function createdEvents(): HasMany

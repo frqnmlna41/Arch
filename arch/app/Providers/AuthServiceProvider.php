@@ -9,6 +9,10 @@ use App\Models\Athlete;
 use App\Policies\UserPolicy;
 use App\Policies\PerguruanPolicy;
 use App\Policies\AthletePolicy;
+USE App\Models\Registration;
+use App\Models\Invoice;
+use App\Policies\RegistrationPolicy;
+use App\Policies\InvoicePolicy;
 
 class AuthServiceProvider extends ServiceProvider
 {
@@ -20,6 +24,8 @@ class AuthServiceProvider extends ServiceProvider
     protected $policies = [
         User::class => UserPolicy::class,
         Athlete::class => AthletePolicy::class,
+        Registration::class => RegistrationPolicy::class,
+        Invoice::class      => InvoicePolicy::class,
     ];
 
     /**

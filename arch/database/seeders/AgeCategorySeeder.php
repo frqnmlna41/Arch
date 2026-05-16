@@ -10,7 +10,7 @@ use App\Models\Sport;
  * AgeCategorySeeder
  *
  * Membuat kategori umur untuk setiap sport.
- * Kategori umur berbeda antara Wushu dan Wing Chun.
+ * Kategori umur berbeda antara Wushu dan Kung fu.
  *
  * Artisan command:
  *   php artisan make:seeder AgeCategorySeeder
@@ -22,7 +22,7 @@ use App\Models\Sport;
  *   B  → 12–14 tahun
  *   A  → 15–18 tahun
  *
- * WING CHUN:
+ * Kung fu:
  *   A  → < 8   tahun
  *   B  → 9–11  tahun
  *   C1 → 12–14 tahun
@@ -82,13 +82,13 @@ class AgeCategorySeeder extends Seeder
             ],
         ],
 
-        'Wing Chun' => [
+        'Kung fu' => [
             [
                 'name'        => 'A',
                 'label'       => 'Kategori A (Di bawah 8 tahun)',
                 'min_age'     => 0,
                 'max_age'     => 8,
-                'description' => 'Wing Chun – Kategori A: Peserta berusia di bawah 8 tahun.',
+                'description' => 'Kung fu – Kategori A: Peserta berusia di bawah 8 tahun.',
                 'is_active'   => true,
             ],
             [
@@ -96,7 +96,7 @@ class AgeCategorySeeder extends Seeder
                 'label'       => 'Kategori B (9–11 tahun)',
                 'min_age'     => 9,
                 'max_age'     => 11,
-                'description' => 'Wing Chun – Kategori B: Peserta berusia 9 hingga 11 tahun.',
+                'description' => 'Kung fu – Kategori B: Peserta berusia 9 hingga 11 tahun.',
                 'is_active'   => true,
             ],
             [
@@ -104,7 +104,7 @@ class AgeCategorySeeder extends Seeder
                 'label'       => 'Kategori C1 (12–14 tahun)',
                 'min_age'     => 12,
                 'max_age'     => 14,
-                'description' => 'Wing Chun – Kategori C1: Peserta berusia 12 hingga 14 tahun.',
+                'description' => 'Kung fu – Kategori C1: Peserta berusia 12 hingga 14 tahun.',
                 'is_active'   => true,
             ],
             [
@@ -112,7 +112,7 @@ class AgeCategorySeeder extends Seeder
                 'label'       => 'Kategori C2 (15–17 tahun)',
                 'min_age'     => 15,
                 'max_age'     => 17,
-                'description' => 'Wing Chun – Kategori C2: Peserta berusia 15 hingga 17 tahun.',
+                'description' => 'Kung fu – Kategori C2: Peserta berusia 15 hingga 17 tahun.',
                 'is_active'   => true,
             ],
             [
@@ -120,7 +120,7 @@ class AgeCategorySeeder extends Seeder
                 'label'       => 'Kategori D1 (18–27 tahun)',
                 'min_age'     => 18,
                 'max_age'     => 27,
-                'description' => 'Wing Chun – Kategori D1: Peserta berusia 18 hingga 27 tahun.',
+                'description' => 'Kung fu – Kategori D1: Peserta berusia 18 hingga 27 tahun.',
                 'is_active'   => true,
             ],
             [
@@ -128,7 +128,7 @@ class AgeCategorySeeder extends Seeder
                 'label'       => 'Kategori D2 (28–39 tahun)',
                 'min_age'     => 28,
                 'max_age'     => 39,
-                'description' => 'Wing Chun – Kategori D2: Peserta berusia 28 hingga 39 tahun.',
+                'description' => 'Kung fu – Kategori D2: Peserta berusia 28 hingga 39 tahun.',
                 'is_active'   => true,
             ],
             [
@@ -136,7 +136,7 @@ class AgeCategorySeeder extends Seeder
                 'label'       => 'Kategori E (40–59 tahun)',
                 'min_age'     => 40,
                 'max_age'     => 59,
-                'description' => 'Wing Chun – Kategori E: Peserta berusia 40 hingga 59 tahun.',
+                'description' => 'Kung fu – Kategori E: Peserta berusia 40 hingga 59 tahun.',
                 'is_active'   => true,
             ],
             [
@@ -144,7 +144,7 @@ class AgeCategorySeeder extends Seeder
                 'label'       => 'Kategori F (60 tahun ke atas)',
                 'min_age'     => 60,
                 'max_age'     => 999,
-                'description' => 'Wing Chun – Kategori F: Peserta berusia 60 tahun ke atas.',
+                'description' => 'Kung fu – Kategori F: Peserta berusia 60 tahun ke atas.',
                 'is_active'   => true,
             ],
         ],
